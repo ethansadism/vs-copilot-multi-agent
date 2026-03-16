@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTA Demo</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .refresh-status { font-size: 0.8em; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Latest Posts</h1>
+    <div id="status" class="refresh-status">Auto-refreshing every 30s...</div>
+    <div id="posts-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Crawled At</th>
+                </tr>
+            </thead>
+            <tbody id="posts-body">
+                <!-- Posts will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchPosts() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                updateTable(data);
+                document.getElementById('status').innerText = 'Last updated: ' + new Date().toLocaleTimeString();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('status').innerText = 'Error fetching data.';
+            }
+        }
+
+        function updateTable(posts) {
+            const tbody = document.getElementById('posts-body');
+            tbody.innerHTML = ''; // Clear existing
+            
+            posts.forEach(post => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${post.id}</td>
+                    <td><a href="${post.url}" target="_blank">${post.title}</a></td>
+                    <td>${post.crawled_at}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initial fetch
+        fetchPosts();
+
+        // Refresh every 30 seconds
+        setInterval(fetchPosts, 30000);
+    </script>
+</body>
+</html>

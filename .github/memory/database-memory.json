@@ -1,8 +1,44 @@
 {
   "agent_name": "Database Expert",
-  "last_update": "2026-03-16T00:00:00Z",
+  "last_update": "2026-03-17T00:00:00Z",
   
+  "project_patterns": [
+    {
+      "pattern": "SQLite Connection Management",
+      "description": "Use contextlib.closing() to ensure SQLite connections are closed properly when using with statement.",
+      "context": "mta_demo/database.py",
+      "date": "2026-03-17"
+    }
+  ],
   "designed_models": [
+    {
+      "model_name": "MTA_Demo_Posts",
+      "version": "1.1",
+      "description": "SQLite table for storing Hacker News posts",
+      "fields": [
+        {"name": "id", "type": "Integer", "description": "PK"},
+        {"name": "title", "type": "Text", "description": "Title"},
+        {"name": "url", "type": "Text", "description": "Unique URL"},
+        {"name": "published_at", "type": "Text", "description": "Publication timestamp"},
+        {"name": "crawled_at", "type": "Text", "description": "ISO timestamp"}
+      ],
+      "indexes": ["url"],
+      "relationships": []
+    },
+    {
+      "model_name": "WebsiteData",
+      "version": "1.1",
+      "description": "SQLite table for storing Hacker News posts",
+      "fields": [
+        {"name": "id", "type": "Integer", "description": "PK"},
+        {"name": "title", "type": "Text", "description": "Title"},
+        {"name": "url", "type": "Text", "description": "Unique URL"},
+        {"name": "published_at", "type": "Text", "description": "Publication timestamp"},
+        {"name": "crawled_at", "type": "Text", "description": "ISO timestamp"}
+      ],
+      "indexes": ["url"],
+      "relationships": []
+    },
     {
       "model_name": "WebsiteData",
       "version": "1.0",

@@ -43,6 +43,10 @@ tools: ['read', 'edit', 'search']
    - 報告包含：實現的 UI/UX、新圖表、設計決策、建議
 
 7. **記憶更新**
+   - 任務結束前，**必須使用 `edit` 工具** 直接更新 `.github/memory/frontend-memory.json`
+   - 將新組件或樣式加入 `design_system`
+   - 將新圖表類型加入 `implemented_charts`
+   - 確保 JSON 語法正確，不要破壞現有結構
    - 記錄新的設計模式和組件
    - 更新設計系統和最佳實踐
 

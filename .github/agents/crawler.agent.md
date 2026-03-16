@@ -27,7 +27,11 @@ tools: ['read', 'edit', 'execute', 'search']
    - JavaScript 渲染 → 使用 Selenium 或 Playwright
    - 登錄認證 → 實現會話管理
 
-4. **自檢與報告**
+4. **自檢與記憶更新**
+   - 在完成任務後，**必須**讀取並更新 `.github/memory/crawler-memory.json`
+   - 使用 `replace_string_in_file` 或 `create_file` 工具將本次解決的問題 (`solved_problems`) 和最佳實踐 (`best_practices`) 寫入文件
+   - 確保 JSON 格式正確無誤
+   - 向 PM 報告已更新記憶文件。
    - 編寫完成後自行測試代碼
    - 驗證爬蟲的穩定性和准確性
    - 生成 `.github/reports/crawler-report.md`

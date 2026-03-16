@@ -39,6 +39,10 @@ tools: ['read', 'edit', 'search']
    - 報告包含：新設計的模型、遷移計劃、性能考量、建議
 
 6. **記憶更新**
+   - 任務結束前，**必須使用 `edit` 工具** 直接更新 `.github/memory/database-memory.json`
+   - 將本次設計的 Models 加入 `designed_models`
+   - 將性能優化技巧加入 `performance_tips`
+   - 確保 JSON 語法正確，不要破壞現有結構
    - 記錄模型設計決策和原因
    - 更新已知的最佳實踐和陷阱
 

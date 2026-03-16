@@ -1,8 +1,19 @@
 {
   "agent_name": "Crawler Expert",
-  "last_update": "2026-03-16T00:00:00Z",
+  "last_update": "2026-03-17T00:00:00Z",
   
   "solved_problems": [
+    {
+      "problem_id": "MTA-CRAWLER-001",
+      "title": "Hacker News Polling Crawler",
+      "description": "Implemented a periodic crawler for Hacker News top stories",
+      "solution": "Used `schedule` library with `requests` for 5-minute interval fetching",
+      "implementation": {
+        "tools": ["requests", "schedule", "sqlite3"],
+        "code_snippet": "schedule.every(5).minutes.do(crawl_hacker_news)"
+      },
+      "date_solved": "2026-03-17"
+    },
     {
       "problem_id": "PROXY-001",
       "title": "IP被網站封禁",
