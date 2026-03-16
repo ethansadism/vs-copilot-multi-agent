@@ -44,6 +44,24 @@
         "osx": "bash .github/hooks/subagent-stop.sh",
         "timeout": 15
       }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/pre-compact.ps1",
+        "linux": "bash .github/hooks/pre-compact.sh",
+        "osx": "bash .github/hooks/pre-compact.sh",
+        "timeout": 10
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/stop.ps1",
+        "linux": "bash .github/hooks/stop.sh",
+        "osx": "bash .github/hooks/stop.sh",
+        "timeout": 10
+      }
     ]
   }
 }
