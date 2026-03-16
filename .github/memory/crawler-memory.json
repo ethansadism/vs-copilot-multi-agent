@@ -1,0 +1,51 @@
+{
+  "agent_name": "Crawler Expert",
+  "last_update": "2026-03-16T00:00:00Z",
+  
+  "solved_problems": [
+    {
+      "problem_id": "PROXY-001",
+      "title": "IP被網站封禁",
+      "description": "某些網站開始拒絕我們的請求",
+      "root_cause": "使用了非住宅 IP 的代理",
+      "solution": "使用 VPN 連接然後通過住宅代理輪換",
+      "implementation": {
+        "tools": ["VPN service", "Residential proxy rotation"],
+        "code_snippet": "使用 rotating-proxy 庫，配置 VPN gateway"
+      },
+      "date_solved": "2026-02-15",
+      "effectiveness": "High - 完全解決了問題",
+      "time_to_solve": "7 days"
+    },
+    {
+      "problem_id": "JS-RENDER-001",
+      "title": "JavaScript動態內容加載",
+      "description": "某些頁面需要執行 JavaScript 才能加載內容",
+      "solution": "使用 Selenium 或 Puppeteer 進行動態渲染",
+      "date_solved": "2026-01-20"
+    }
+  ],
+  
+  "best_practices": [
+    "始終在 robots.txt 之前檢查網站政策",
+    "實現指數退避重試策略處理速率限制",
+    "使用 User-Agent 輪換避免被檢測到",
+    "實現適當的延遲（3-5秒）以避免過度請求"
+  ],
+  
+  "crawled_websites": [
+    {
+      "url": "example.com",
+      "difficulty": "Medium",
+      "notes": "需要 JavaScript 渲染"
+    }
+  ],
+  
+  "tools_and_libraries": [
+    "requests",
+    "BeautifulSoup4",
+    "Selenium",
+    "Puppeteer",
+    "rotating-proxy"
+  ]
+}

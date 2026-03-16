@@ -1,0 +1,49 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/session-init.ps1",
+        "linux": "bash .github/hooks/session-init.sh",
+        "osx": "bash .github/hooks/session-init.sh",
+        "timeout": 10
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/log-prompt.ps1",
+        "linux": "bash .github/hooks/log-prompt.sh",
+        "osx": "bash .github/hooks/log-prompt.sh",
+        "timeout": 5
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/post-tool-use.ps1",
+        "linux": "bash .github/hooks/post-tool-use.sh",
+        "osx": "bash .github/hooks/post-tool-use.sh",
+        "timeout": 10
+      }
+    ],
+    "SubagentStart": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/subagent-start.ps1",
+        "linux": "bash .github/hooks/subagent-start.sh",
+        "osx": "bash .github/hooks/subagent-start.sh",
+        "timeout": 10
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "windows": "powershell -File .github/hooks/subagent-stop.ps1",
+        "linux": "bash .github/hooks/subagent-stop.sh",
+        "osx": "bash .github/hooks/subagent-stop.sh",
+        "timeout": 15
+      }
+    ]
+  }
+}
