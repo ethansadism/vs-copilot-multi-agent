@@ -1,6 +1,6 @@
 #!/bin/bash
 # Stop Hook - 會話結束前檢查記憶是否已更新
-# 如果 project-state.json 在本次會話中未被修改，注入提醒
+# 如果 memory-kb 中的筆記在本次會話中未被修改，注入提醒
 
 python3 -c '
 import sys, json, os, time
@@ -11,25 +11,22 @@ try:
         sys.exit(0)
 
     data = json.loads(input_str)
-    memory_file = ".github/memory/project-state.json"
+    overview_file = ".github/memory-kb/project/project-overview.md"
 
-    # 檢查 project-state.json 是否在最近 10 分鐘內被修改過
-    # 如果沒有，提醒 agent 更新記憶
-    if os.path.exists(memory_file):
-        mtime = os.path.getmtime(memory_file)
+    if os.path.exists(overview_file):
+        mtime = os.path.getmtime(overview_file)
         age_minutes = (time.time() - mtime) / 60
 
         if age_minutes > 10:
-            # 記憶文件未在近期更新，注入提醒
             output = {
                 "continue": True,
                 "hookSpecificOutput": {
                     "additionalContext": (
                         "## 記憶更新提醒\n"
-                        "project-state.json 在本次會話中似乎未被更新。\n"
-                        "請在結束前更新記憶：\n"
+                        "project-overview.md 在本次會話中似乎未被更新。\n"
+                        "請在結束前用 `write_note` 更新記憶：\n"
                         "- 記錄本次完成的任務\n"
-                        "- 記錄新發現的問題和解決方案\n"
+                        "- 記錄新發現的問題和解決方案（更新 known-issues.md）\n"
                         "- 更新系統狀態\n"
                     )
                 }
@@ -37,7 +34,7 @@ try:
         else:
             output = {"continue": True}
     else:
-        output = {"continue": True}
+        output = {"continue": True, "systemMessage": "警告：找不到 project-overview.md"}
 
     print(json.dumps(output))
 

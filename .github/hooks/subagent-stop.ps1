@@ -11,7 +11,7 @@ try {
     $agent_type = $input.agent_type
     $agent_id = $input.agent_id
     $session_id = $input.sessionId
-    $memory_dir = ".github/memory"
+    $memory_kb = ".github/memory-kb"
     $reports_dir = ".github/reports"
     $log_dir = ".github/logs"
 
@@ -28,7 +28,7 @@ try {
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
     $report_file = "$reports_dir/$agent_type-report-$timestamp.md"
     
-    # 記錄完成事件（這裡只是示例，實際內容由 Agent 提供）
+    # 記錄完成事件
     $completion_log = @{
         timestamp = Get-Date -Format "o"
         agent_type = $agent_type
@@ -39,7 +39,7 @@ try {
     }
     
     # 記錄到會話日誌
-    $session_log = "$memory_dir/session-$session_id.json"
+    $session_log = "$log_dir/session-$session_id.json"
     if (Test-Path $session_log) {
         $log = Get-Content $session_log | ConvertFrom-Json
         $log.completed_agents += $completion_log
@@ -52,12 +52,12 @@ try {
         } | ConvertTo-Json | Set-Content $session_log
     }
     
-    # 返回完成確認
+    # 返回完成確認，提醒用 write_note 更新記憶
     $output = @{
         continue = $true
         hookSpecificOutput = @{
             hookEventName = "SubagentStop"
-            additionalContext = "$agent_type 已完成任務，記憶已更新。報告位置: $report_file"
+            additionalContext = "$agent_type 已完成任務。請確認已用 write_note 更新記憶筆記，報告位置: $report_file"
         }
     }
     

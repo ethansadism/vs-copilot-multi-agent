@@ -9,7 +9,7 @@ param(
 try {
     $input = $input_json | ConvertFrom-Json
     $session_id = $input.sessionId
-    $memory_dir = ".github/memory"
+    $memory_kb = ".github/memory-kb"
     $log_dir = ".github/logs"
 
     # === 流程日誌 ===
@@ -17,45 +17,40 @@ try {
     Add-Content -Path "$log_dir/hook-flow.log" -Value "`n========================================"
     Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SessionStart] New session: $session_id"
     
-    # 讀取項目狀態
-    if (Test-Path "$memory_dir/project-state.json") {
-        $project_state = Get-Content "$memory_dir/project-state.json" | ConvertFrom-Json
-        $context = @{
-            project_name = $project_state.project_name
-            last_update = $project_state.last_update
-            active_tasks = $project_state.active_tasks
-            known_issues = $project_state.known_issues
-            session_id = $session_id
-        }
+    # 檢查 memory-kb 是否存在
+    $overview_file = "$memory_kb/project/project-overview.md"
+    if (Test-Path $overview_file) {
+        $overview_content = Get-Content $overview_file -Raw
         
-        Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SessionStart] Memory loaded: $($project_state.project_name) | Phase: $($project_state.current_phase) | Known issues: $($project_state.known_issues.Count)"
+        Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SessionStart] Memory KB loaded from $memory_kb"
 
-        # 返回包含記憶的上下文
+        # 返回包含記憶提示的上下文
         $output = @{
             continue = $true
             hookSpecificOutput = @{
                 hookEventName = "SessionStart"
                 additionalContext = @"
-## 專案記憶已加載 (Session: $session_id)
+## Basic Memory 已就緒 (Session: $session_id)
 
-**項目**: $($project_state.project_name)
-**當前階段**: $($project_state.current_phase)
-**最後更新**: $($project_state.last_update)
+記憶知識庫位於 `$memory_kb/`，請使用 MCP 工具操作：
+- ``search_notes("project overview")`` 查詢專案狀態
+- ``search_notes("known issues")`` 查詢已知問題
+- ``search_notes("關鍵字")`` 搜尋相關經驗
 
-### 已知問題與解決方案:
-$($project_state.known_issues | ConvertTo-Json -Depth 2)
+### 資料夾結構
+- ``project/`` — 專案總覽與已知問題
+- ``crawler/`` — 爬蟲經驗與最佳實踐
+- ``database/`` — 資料模型與 SQLite 模式
+- ``frontend/`` — 設計系統與組件庫
 
-### 活躍任務:
-$($project_state.active_tasks | ConvertTo-Json -Depth 2)
-
-記憶系統已激活，所有 Agent 可以查閱其專業領域的記憶。
+**請先用 search_notes 查詢記憶再開始工作。**
 "@
             }
         }
     } else {
         $output = @{
             continue = $true
-            systemMessage = "警告：找不到項目狀態記憶文件"
+            systemMessage = "警告：找不到記憶知識庫 ($memory_kb)，請確認 Basic Memory 已設定"
         }
     }
     

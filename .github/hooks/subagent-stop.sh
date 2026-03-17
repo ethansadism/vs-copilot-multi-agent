@@ -11,18 +11,19 @@ try:
         sys.exit(0)
 
     data = json.loads(input_str)
-    agent_type = data.get("agent_type")
-    agent_id = data.get("agent_id")
-    session_id = data.get("sessionId")
+    agent_type = data.get("agent_type", "unknown")
+    agent_id = data.get("agent_id", "unknown")
+    session_id = data.get("sessionId", "unknown")
     
-    memory_dir = ".github/memory"
+    log_dir = ".github/logs"
     reports_dir = ".github/reports"
     
-    if not os.path.exists(reports_dir):
-        os.makedirs(reports_dir, exist_ok=True)
+    os.makedirs(reports_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
         
     timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_file = os.path.join(reports_dir, f"{agent_type.replace(" ", "_")}-report-{timestamp_str}.md")
+    safe_agent = agent_type.replace(" ", "_")
+    report_file = os.path.join(reports_dir, f"{safe_agent}-report-{timestamp_str}.md")
     
     completion_log = {
         "timestamp": datetime.datetime.now().isoformat(),
@@ -34,7 +35,7 @@ try:
     }
     
     # Update session log
-    session_log_path = os.path.join(memory_dir, f"session-{session_id}.json")
+    session_log_path = os.path.join(log_dir, f"session-{session_id}.json")
     
     if os.path.exists(session_log_path):
         try:
@@ -51,7 +52,6 @@ try:
         with open(session_log_path, "w") as f:
             json.dump(log, f, indent=2)
     else:
-        # Create new session log if not exists
         log = {
             "session_id": session_id,
             "started_at": datetime.datetime.now().isoformat(),
@@ -64,7 +64,7 @@ try:
         "continue": True,
         "hookSpecificOutput": {
             "hookEventName": "SubagentStop",
-            "additionalContext": f"{agent_type} has completed execution. Report location: {report_file}"
+            "additionalContext": f"{agent_type} 已完成任務。請確認已用 write_note 更新記憶筆記，報告位置: {report_file}"
         }
     }
     
