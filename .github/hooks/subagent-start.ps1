@@ -46,21 +46,6 @@ try {
 
 ### 現有筆記:
 $notes_list
-
-### 必做事項（強制）:
-1. **任務開始前** — 用 ``search_notes("相關關鍵字")`` 搜尋過去經驗
-2. **任務完成後** — 用 ``write_note`` 在 ``$agent_folder/`` 資料夾更新或新增筆記
-3. **未更新記憶 = 任務未完成**（SubagentStop 會自動偵測）
-
-### 筆記格式:
-```markdown
-# 標題
-描述。
-## Observations
-- key :: value
-## Relations
-- relates_to [[其他筆記]]
-```
 "@
 
     $output = @{

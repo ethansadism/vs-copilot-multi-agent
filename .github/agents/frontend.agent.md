@@ -39,7 +39,7 @@ model: "Claude Sonnet 4.6"
 2. **理解需求** — 確認要展示什麼數據、目標用戶、設計約束
 3. **設計方案** — 選擇合適的圖表類型、布局、色彩方案
 4. **實現代碼** — 編寫 HTML/CSS/JavaScript，集成圖表庫（Chart.js、D3.js 等）
-5. **強制生成報告** — 寫入 `.github/reports/frontend-report.md`，包含：實現的 UI、設計決策、建議。**未生成報告 = 任務未完成**
+5. **回報摘要** — 向 PM 回報時只需提供：一行摘要 + 寫入的 memory-kb 筆記 permalink。不需要生成獨立報告檔案
 6. **強制更新記憶** — 用 `write_note` 在 `frontend/` 資料夾新增或更新筆記
 7. **回報 PM** — 完成上述步驟後回報
 

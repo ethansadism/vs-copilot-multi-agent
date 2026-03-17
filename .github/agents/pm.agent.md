@@ -89,6 +89,7 @@ disable-model-invocation: true
    → search_notes("project overview status") 取得專案狀態
    → search_notes("known issues") 取得已知問題
    → search_notes("任務相關關鍵字") 取得相關經驗
+   → 如知道目標 app，加上 search_notes("app :: mta_demoX") 搜尋該 app 的歷史記憶
    → 向用戶展示：「根據記憶，目前專案狀態是...已知問題有...」
    ↓
 2. 分析需求，識別技術領域
@@ -100,7 +101,8 @@ disable-model-invocation: true
 4. 調用 subagents（能並行就並行）
    → 傳遞給每個 subagent：任務描述 + 已知問題 + 過去的解決方案
    ↓
-5. 收集報告，檢查 .github/reports/ 下的結果
+5. 收集 subagent 回報的摘要和 memory-kb permalink
+   → 如需細節，用 `read_note(permalink)` 讀取完整筆記
    → 整合所有 agent 的輸出，識別衝突
    ↓
 6. 更新記憶
@@ -115,6 +117,7 @@ disable-model-invocation: true
 ## 調用 Subagent 時的注意事項
 
 向 subagent 傳遞任務時，必須包含：
+- **目標 App 名稱**（如 `mta_demo3`）— subagent 在筆記的 Observations 裡必須加上 `app :: mta_demo3`，讓記憶可按 app 篩選
 - 明確的任務描述和交付物要求
 - 從 `search_notes("known issues")` 中提取的相關警告（例：「注意 PROXY-001，上次用 VPN 解決」）
 - 從 `search_notes` 中提取的相關過去經驗
