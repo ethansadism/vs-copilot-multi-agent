@@ -10,6 +10,12 @@ try {
     $input = $input_json | ConvertFrom-Json
     $session_id = $input.sessionId
     $memory_dir = ".github/memory"
+    $log_dir = ".github/logs"
+
+    # === 流程日誌 ===
+    if (-not (Test-Path $log_dir)) { New-Item -ItemType Directory -Path $log_dir -Force | Out-Null }
+    Add-Content -Path "$log_dir/hook-flow.log" -Value "`n========================================"
+    Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SessionStart] New session: $session_id"
     
     # 讀取項目狀態
     if (Test-Path "$memory_dir/project-state.json") {
@@ -22,6 +28,8 @@ try {
             session_id = $session_id
         }
         
+        Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SessionStart] Memory loaded: $($project_state.project_name) | Phase: $($project_state.current_phase) | Known issues: $($project_state.known_issues.Count)"
+
         # 返回包含記憶的上下文
         $output = @{
             continue = $true

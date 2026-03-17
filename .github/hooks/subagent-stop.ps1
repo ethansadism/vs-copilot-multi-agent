@@ -13,6 +13,11 @@ try {
     $session_id = $input.sessionId
     $memory_dir = ".github/memory"
     $reports_dir = ".github/reports"
+    $log_dir = ".github/logs"
+
+    # === 流程日誌 ===
+    if (-not (Test-Path $log_dir)) { New-Item -ItemType Directory -Path $log_dir -Force | Out-Null }
+    Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SubagentStop] <<< $agent_type (ID: $agent_id) completed"
     
     # 確保報告目錄存在
     if (-not (Test-Path $reports_dir)) {

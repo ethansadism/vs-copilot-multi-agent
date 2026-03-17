@@ -10,6 +10,18 @@
         "API endpoint /api/data",
         "Auto-refreshing frontend interface"
       ]
+    },
+    "mta_demo2": {
+      "status": "active",
+      "features": [
+        "Flask + Flask-SocketIO (port 5001)",
+        "WebSocket 即時股價推送 (stock_update / alert events)",
+        "REST API: /api/watchlist, /api/alerts, /api/history/<stock_id>",
+        "Chart.js 4.x 即時走勢線圖",
+        "APScheduler 每 1 小時 flush_to_db",
+        "深色主題 (#1a1a2e) + 台股紅漲綠跌配色",
+        "響應式設計 (CSS Grid + Flexbox)"
+      ]
     }
   },
   
@@ -47,6 +59,15 @@
       "type": "Line Chart",
       "library": "Chart.js",
       "implementation_date": "2026-02-05"
+    },
+    {
+      "chart_id": "CHART-003",
+      "name": "台股即時走勢圖",
+      "type": "Line Chart (Realtime)",
+      "library": "Chart.js 4.x",
+      "data_source": "WebSocket stock_update events",
+      "implementation_date": "2026-03-17",
+      "notes": "最多 100 個數據點，可切換不同股票"
     }
   ],
   
@@ -61,13 +82,34 @@
       "component_name": "StatusCard",
       "description": "系統狀態卡片",
       "reusable": true
+    },
+    {
+      "component_name": "StockCard",
+      "description": "即時股價卡片（漲跌色標、千分位、hover 放大）",
+      "project": "mta_demo2",
+      "reusable": true
+    },
+    {
+      "component_name": "AlertList",
+      "description": "即時通知區域（最多 50 筆、自動捲動）",
+      "project": "mta_demo2",
+      "reusable": true
+    },
+    {
+      "component_name": "WatchlistManager",
+      "description": "監看清單管理（新增/移除股票標籤）",
+      "project": "mta_demo2",
+      "reusable": true
     }
   ],
   
   "recent_improvements": [
     "實現暗黑模式支持",
     "優化移動設備響應式設計",
-    "添加數據實時刷新功能"
+    "添加數據實時刷新功能",
+    "mta_demo2: 建立台股即時監看 UI (Socket.IO + Chart.js)",
+    "mta_demo2: WebSocket 即時推送取代 polling",
+    "mta_demo2: 台股紅漲綠跌配色方案"
   ],
   
   "accessibility_notes": "符合 WCAG 2.1 AA 標準"

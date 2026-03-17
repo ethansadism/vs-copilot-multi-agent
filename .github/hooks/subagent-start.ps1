@@ -11,6 +11,11 @@ try {
     $agent_type = $input.agent_type
     $agent_id = $input.agent_id
     $memory_dir = ".github/memory"
+    $log_dir = ".github/logs"
+
+    # === 流程日誌 ===
+    if (-not (Test-Path $log_dir)) { New-Item -ItemType Directory -Path $log_dir -Force | Out-Null }
+    Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SubagentStart] >>> $agent_type (ID: $agent_id) spawned"
     
     $memory_map = @{
         "Crawler Expert" = "crawler-memory.json"

@@ -12,7 +12,12 @@ try {
     $tool_input = $input.tool_input
     $tool_response = $input.tool_response
     $timestamp = $input.timestamp
-    
+
+    # === 流程日誌 ===
+    $flow_log_dir = ".github/logs"
+    if (-not (Test-Path $flow_log_dir)) { New-Item -ItemType Directory -Path $flow_log_dir -Force | Out-Null }
+    Add-Content -Path "$flow_log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [PostToolUse] Tool: $tool_name | Response length: $($tool_response.Length)"
+
     # 記錄 Tool 使用情況
     $log_file = ".github/logs/tool-usage-$(Get-Date -Format 'yyyy-MM-dd').log"
     $log_dir = Split-Path $log_file

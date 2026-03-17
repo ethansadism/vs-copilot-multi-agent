@@ -8,9 +8,74 @@
       "description": "Use contextlib.closing() to ensure SQLite connections are closed properly when using with statement.",
       "context": "mta_demo/database.py",
       "date": "2026-03-17"
+    },
+    {
+      "pattern": "Batch Write with Buffer",
+      "description": "使用 deque buffer + threading.Lock + executemany 實現線程安全的批次寫入，適合低頻（每小時）寫入場景",
+      "context": "mta_demo2/database.py",
+      "date": "2026-03-17"
+    },
+    {
+      "pattern": "SQLite WAL Mode",
+      "description": "啟用 PRAGMA journal_mode=WAL 允許讀寫並行，適合有 web server 同時讀取的場景",
+      "context": "mta_demo2/database.py",
+      "date": "2026-03-17"
     }
   ],
   "designed_models": [
+    {
+      "model_name": "StockPrices",
+      "version": "1.0",
+      "description": "台股即時監看系統 — 股價歷史紀錄表，搭配 buffer + flush 批次寫入",
+      "project": "mta_demo2",
+      "fields": [
+        {"name": "id", "type": "INTEGER PK"},
+        {"name": "stock_id", "type": "TEXT NOT NULL"},
+        {"name": "stock_name", "type": "TEXT"},
+        {"name": "current_price", "type": "REAL"},
+        {"name": "change_amount", "type": "REAL"},
+        {"name": "change_percent", "type": "REAL"},
+        {"name": "volume", "type": "INTEGER"},
+        {"name": "open_price", "type": "REAL"},
+        {"name": "high_price", "type": "REAL"},
+        {"name": "low_price", "type": "REAL"},
+        {"name": "yesterday_close", "type": "REAL"},
+        {"name": "recorded_at", "type": "TEXT NOT NULL"},
+        {"name": "saved_at", "type": "TEXT NOT NULL"}
+      ],
+      "indexes": ["(stock_id, recorded_at)"],
+      "date": "2026-03-17"
+    },
+    {
+      "model_name": "StockWatchlist",
+      "version": "1.0",
+      "description": "台股監看清單，stock_id 為 PK",
+      "project": "mta_demo2",
+      "fields": [
+        {"name": "stock_id", "type": "TEXT PK"},
+        {"name": "stock_name", "type": "TEXT"},
+        {"name": "added_at", "type": "TEXT NOT NULL"}
+      ],
+      "indexes": [],
+      "date": "2026-03-17"
+    },
+    {
+      "model_name": "Alerts",
+      "version": "1.0",
+      "description": "台股通知紀錄表",
+      "project": "mta_demo2",
+      "fields": [
+        {"name": "id", "type": "INTEGER PK"},
+        {"name": "stock_id", "type": "TEXT NOT NULL"},
+        {"name": "stock_name", "type": "TEXT"},
+        {"name": "alert_type", "type": "TEXT NOT NULL"},
+        {"name": "message", "type": "TEXT"},
+        {"name": "trigger_value", "type": "REAL"},
+        {"name": "created_at", "type": "TEXT NOT NULL"}
+      ],
+      "indexes": ["(created_at DESC)"],
+      "date": "2026-03-17"
+    },
     {
       "model_name": "MTA_Demo_Posts",
       "version": "1.1",
