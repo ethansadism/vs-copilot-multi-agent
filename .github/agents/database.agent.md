@@ -33,6 +33,26 @@ model: "Claude Sonnet 4.6"
 - relates_to [[其他筆記]]
 ```
 
+### 筆記命名與 Tag 規範
+
+**檔名規則**：`title` 格式為 `{app-id}_{seq}_{name}`
+- `{app-id}` = app 縮寫（如 `mta_demo2`）；跨 app 通用筆記用 `general`
+- `{seq}` = 3 位流水號（`001`, `002`...）
+- `{name}` = kebab-case 簡述（全小寫、連字號）
+- ✅ `mta_demo2_001_stock-data-models`
+- ✅ `general_001_sqlite-patterns`
+- ❌ `stock-data-models`（缺少 app 前綴）
+
+**`write_note` 必填 `tags`**：
+
+| Tag | 格式 | 說明 |
+|-----|------|------|
+| app | `app:mta_demo3` | 與特定 app 關聯（無關則省略）|
+| agent | `agent:database` | 識別筆記撰寫者 |
+| type | `bug` / `experience` / `reference` | 筆記性質 |
+
+**精確搜尋**：`search_notes("關鍵字", tags=["app:mta_demo3"])` 可鎖定特定 app，避免跨 app 記憶混淆。
+
 ## 任務流程
 
 1. **先查記憶** — 用 `search_notes` 搜尋過去的模型設計、遷移經驗和 SQLite 模式

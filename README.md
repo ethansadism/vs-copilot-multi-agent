@@ -1,4 +1,4 @@
-# Multi-Agent Collaboration System (v0.02)
+# Multi-Agent Collaboration System (v0.04)
 
 基於 VS Code Copilot 的多 Agent 協作系統。PM 協調、專家執行、Basic Memory 知識圖譜持久化。
 
@@ -31,7 +31,10 @@
 │   ├── database.agent.md    # 資料庫專家
 │   └── frontend.agent.md    # 前端工程師
 │
+├── copilot-instructions.md  # 全域 Copilot 規則與對話開始 SOP（自動載入）
+│
 ├── memory-kb/               # Basic Memory 知識庫（Markdown 筆記）
+│   ├── conversations/       # 跨角色重要對話紀錄（架構決策、重要會話摘要）
 │   ├── project/             # PM 管理的全局筆記
 │   │   ├── project-overview.md    # 專案狀態、技術棧
 │   │   └── known-issues.md        # 已知問題追蹤
@@ -49,8 +52,6 @@
 │       ├── stock-monitoring-ui.md
 │       └── ...
 │
-├── memory/                  # [舊版] JSON 記憶（保留供參考）
-│
 ├── hooks/                   # 7 個生命週期 Hook
 │   ├── hooks.json           # Hook 配置
 │   ├── session-init.*       # SessionStart：提醒查詢 Basic Memory
@@ -60,10 +61,6 @@
 │   ├── post-tool-use.*      # PostToolUse：記錄工具使用
 │   ├── pre-compact.*        # PreCompact：壓縮前保護記憶
 │   └── stop.*               # Stop：提醒更新記憶
-│
-├── tools/                   # 工具管理
-│   ├── TOOLS_MANIFEST.md    # 工具矩陣和 MCP 推薦
-│   └── mcp-registry.json    # MCP 註冊表
 │
 ├── reports/                 # Agent 任務報告
 └── logs/                    # 審計日誌

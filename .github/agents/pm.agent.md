@@ -51,6 +51,7 @@ disable-model-invocation: true
 
 ```
 .github/memory-kb/
+├── conversations/     ← 對話重要記錄（跨角色決策、架構討論、重要會話摘要）
 ├── project/           ← PM 管理的全局筆記
 │   ├── project-overview.md    （專案狀態、技術棧）
 │   └── known-issues.md        （已知問題追蹤）
@@ -89,7 +90,7 @@ disable-model-invocation: true
    → search_notes("project overview status") 取得專案狀態
    → search_notes("known issues") 取得已知問題
    → search_notes("任務相關關鍵字") 取得相關經驗
-   → 如知道目標 app，加上 search_notes("app :: mta_demoX") 搜尋該 app 的歷史記憶
+   → 如知道目標 app，加上 search_notes("mta_demoX 相關", tags=["app:mta_demoX"]) 精確篩選該 app 記憶（tags 參數比純語意更精確，不會跨 app 混淆）
    → 向用戶展示：「根據記憶，目前專案狀態是...已知問題有...」
    ↓
 2. 分析需求，識別技術領域
@@ -108,7 +109,8 @@ disable-model-invocation: true
 6. 更新記憶
    → write_note 更新 project/project-overview.md（任務完成、新狀態）
    → write_note 更新 project/known-issues.md（新問題或問題狀態變更）
-   → 驗證 subagent 是否已更新各自的記憶筆記
+   → 若本次有重要架構決策或跨 app 討論，write_note 在 conversations/ 新增會話摘要（title 格式: `YYYY-MM-DD-主題`，tags: `["session"]`）
+   → 驗證 subagent 是否已更新各自的記憶筆記（應包含正確的 `app:xxx` 和 `agent:xxx` tags）
    ↓
 7. 向用戶報告
    → 做了什麼、遇到什麼問題、發現什麼、下一步建議
@@ -117,7 +119,7 @@ disable-model-invocation: true
 ## 調用 Subagent 時的注意事項
 
 向 subagent 傳遞任務時，必須包含：
-- **目標 App 名稱**（如 `mta_demo3`）— subagent 在筆記的 Observations 裡必須加上 `app :: mta_demo3`，讓記憶可按 app 篩選
+- **目標 App 名稱**（如 `mta_demo3`）— subagent 的 `write_note` 須遵守命名規則：`title` = `{app-id}_{seq}_{name}`（如 `mta_demo3_001_github-trending-crawler`）；`tags` 必須包含 `app:mta_demo3` + `agent:xxx`；Observations 加 `app :: mta_demo3`
 - 明確的任務描述和交付物要求
 - 從 `search_notes("known issues")` 中提取的相關警告（例：「注意 PROXY-001，上次用 VPN 解決」）
 - 從 `search_notes` 中提取的相關過去經驗

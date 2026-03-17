@@ -2,6 +2,9 @@
 title: project-overview
 type: note
 permalink: multi-agent-system/project/project-overview
+tags:
+- project
+- overview
 ---
 
 # Multi-Agent Web Crawler Dashboard
@@ -12,7 +15,8 @@ permalink: multi-agent-system/project/project-overview
 
 - project_name :: Multi-Agent Web Crawler Dashboard
 - current_phase :: Active Development
-- last_update :: 2026-03-17
+- last_update :: 2026-03-18
+- version :: v0.05
 - workspace_root :: .github
 - database_status :: Ready
 - frontend_status :: Ready
@@ -31,7 +35,6 @@ permalink: multi-agent-system/project/project-overview
 - mta_demo2_status :: Complete
 - mta_demo2_tech_stack :: Flask, Flask-SocketIO, APScheduler, SQLite3, Chart.js, TWSE API
 - mta_demo2_default_stocks :: 2317 鴻海, 2330 台積電
-- mta_demo2_files :: app.py, stock_crawler.py, database.py, templates/index.html, requirements.txt
 
 ### mta_demo3
 - mta_demo3_description :: GitHub Trending Dashboard
@@ -39,27 +42,22 @@ permalink: multi-agent-system/project/project-overview
 - mta_demo3_status :: Complete
 - mta_demo3_tech_stack :: Flask, requests, BeautifulSoup4, SQLite3, Vanilla JS
 - mta_demo3_target :: https://github.com/trending
-- mta_demo3_files :: app.py, github_crawler.py, database.py, templates/index.html, requirements.txt
-- mta_demo3_db :: trending.db（append-only，保留歷史批次）
-- mta_demo3_routes :: GET /, POST /refresh, GET /api/repos
 
-### mta_demo
-- mta_demo_description :: Hacker News Crawler Dashboard
-- mta_demo_port :: 8989
-- mta_demo_status :: Complete
-
-### mta_demo2
-- mta_demo2_description :: 即時台股盤中監看與通知系統
-- mta_demo2_port :: 5001
-- mta_demo2_status :: Complete
-- mta_demo2_tech_stack :: Flask, Flask-SocketIO, APScheduler, SQLite3, Chart.js, TWSE API
-- mta_demo2_default_stocks :: 2317 鴻海, 2330 台積電
-- mta_demo2_files :: app.py, stock_crawler.py, database.py, templates/index.html, requirements.txt
+### mta_demo4
+- mta_demo4_description :: 美股即時監聽 Dashboard
+- mta_demo4_port :: 5003
+- mta_demo4_status :: Complete
+- mta_demo4_tech_stack :: Flask, Flask-SocketIO, yfinance, Redis, SQLite3, Vanilla JS
+- mta_demo4_default_stock :: AAPL (Apple Inc.), threshold 5%
+- mta_demo4_db :: data/us_stocks.db
+- mta_demo4_redis :: cache TTL 30s + pub/sub (stock_updates, stock_alerts)
+- mta_demo4_socketio :: price_update, alert_triggered, request_refresh
 
 ## Completed Tasks
 - MTA Demo Setup (Crawler + SQLite + Frontend)
-- MTA Demo2: 即時台股盤中監看與通知系統 (Crawler + SQLite + Flask-SocketIO + Frontend)
-- MTA Demo3: GitHub Trending Dashboard (Crawler + SQLite + Frontend)，2026-03-17
+- MTA Demo2: 即時台股盤中監看與通知系統
+- MTA Demo3: GitHub Trending Dashboard，2026-03-17
+- MTA Demo4: 美股即時監聽 Dashboard (yfinance + Redis)，2026-03-18
 
 ## Relations
 
@@ -68,10 +66,3 @@ permalink: multi-agent-system/project/project-overview
 - has_agent [[Crawler Expert]]
 - has_agent [[Database Expert]]
 - has_agent [[Frontend Engineer]]
-
-## Runtime Notes 2026-03-17
-
-- mta_demo3_connection_refused_root_cause :: app 未啟動（常見為在 workspace root 直接執行 `py -3 app.py` 導致找不到檔案）
-- mta_demo3_start_command_root :: py -3 mta_demo3/app.py
-- mta_demo3_start_command_project :: cd mta_demo3 && py -3 app.py
-- mta_demo3_healthcheck :: GET / and GET /api/repos both return 200 when service is running

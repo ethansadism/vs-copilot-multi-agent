@@ -46,6 +46,16 @@ try {
 
 ### 現有筆記:
 $notes_list
+
+### 搜尋規則（必須遵守）
+
+**精確搜尋**（避免跨 app 污染）：
+```
+search_notes("關鍵字", tags=["app:<app-id>"])
+search_notes("關鍵字", tags=["agent:$agent_folder"])
+```
+
+**❌ 禁止**直接用 ``search_notes("關鍵字")`` 而不帶 tags，這會混入其他 app 的結果。
 "@
 
     $output = @{

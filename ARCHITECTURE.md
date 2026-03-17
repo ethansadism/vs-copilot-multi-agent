@@ -1,4 +1,4 @@
-# 系統架構說明（v0.02 — Basic Memory）
+# 系統架構說明（v0.04 — Basic Memory）
 
 ## 架構設計
 
@@ -59,7 +59,10 @@
 │  │   ├── database.agent.md # 資料庫專家                      │
 │  │   └── frontend.agent.md # 前端工程師                      │
 │  │                                                            │
+│  ├── copilot-instructions.md  # 全域規則與 SOP（自動載入）    │
+│  │                                                            │
 │  ├── memory-kb/           # Basic Memory 知識庫（Markdown）  │
+│  │   ├── conversations/   # 重要會話紀錄與架構決策            │
 │  │   ├── project/         # PM 管理的全局筆記                │
 │  │   │   ├── project-overview.md                             │
 │  │   │   ├── known-issues.md                                 │
@@ -78,7 +81,6 @@
 │  │   ├── pre-compact.*    # PreCompact：壓縮前注入摘要       │
 │  │   └── stop.*           # Stop：提醒更新記憶               │
 │  │                                                            │
-│  ├── tools/               # 工具管理                          │
 │  ├── reports/             # 任務報告                          │
 │  └── logs/                # 審計日誌                          │
 │                                                               │
