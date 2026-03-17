@@ -1,5 +1,5 @@
-# SubagentStart Hook - 當 Subagent 啟動時加載其記憶
-# 根據 Agent 類型加載相應的記憶
+# SubagentStart Hook - 當 Subagent 啟動時注入 Basic Memory 記憶提示
+# v0.02: 改用 Basic Memory MCP，不再直接讀 JSON
 
 param(
     [Parameter(ValueFromPipeline=$true)]
@@ -10,56 +10,67 @@ try {
     $input = $input_json | ConvertFrom-Json
     $agent_type = $input.agent_type
     $agent_id = $input.agent_id
-    $memory_dir = ".github/memory"
+    $memory_kb = ".github/memory-kb"
     $log_dir = ".github/logs"
 
     # === 流程日誌 ===
     if (-not (Test-Path $log_dir)) { New-Item -ItemType Directory -Path $log_dir -Force | Out-Null }
     Add-Content -Path "$log_dir/hook-flow.log" -Value "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] [SubagentStart] >>> $agent_type (ID: $agent_id) spawned"
-    
-    $memory_map = @{
-        "Crawler Expert" = "crawler-memory.json"
-        "Database Expert" = "database-memory.json"
-        "Frontend Engineer" = "frontend-memory.json"
+
+    # Agent 類型對應 memory-kb 資料夾
+    $folder_map = @{
+        "Crawler Expert"    = "crawler"
+        "Database Expert"   = "database"
+        "Frontend Engineer" = "frontend"
     }
-    
-    $memory_file = $memory_map[$agent_type]
-    
-    if ($memory_file -and (Test-Path "$memory_dir/$memory_file")) {
-        $agent_memory = Get-Content "$memory_dir/$memory_file" | ConvertFrom-Json
-        
-        $context = @"
-## $agent_type 的記憶已加載 (Agent ID: $agent_id)
 
-**上次更新**: $($agent_memory.last_update)
+    $agent_folder = $folder_map[$agent_type]
 
-### 已解決的問題:
-$($agent_memory.solved_problems | ConvertTo-Json -Depth 2)
+    # 列出該 agent 資料夾中的現有筆記
+    $notes_list = ""
+    if ($agent_folder -and (Test-Path "$memory_kb/$agent_folder")) {
+        $notes = Get-ChildItem "$memory_kb/$agent_folder" -Filter "*.md" | Select-Object -ExpandProperty Name
+        if ($notes) {
+            $notes_list = ($notes | ForEach-Object { "  - $_" }) -join "`n"
+        }
+    }
 
-### 最佳實踐:
-$($agent_memory.best_practices -join "`n- ")
+    # 記錄啟動時間戳（供 SubagentStop 檢查記憶更新）
+    $ts_file = "$log_dir/subagent-start-$agent_id.timestamp"
+    Get-Date -Format "o" | Set-Content $ts_file
 
-### 工具和庫:
-$($agent_memory.tools_and_libraries -join ", ")
+    $context = @"
+## $agent_type Basic Memory 已就緒 (Agent ID: $agent_id)
 
----
-**重要**: 在執行任務前，請檢查已解決問題列表，避免重複犯同樣的錯誤。
+你的記憶資料夾: ``$memory_kb/$agent_folder/``
+
+### 現有筆記:
+$notes_list
+
+### 必做事項（強制）:
+1. **任務開始前** — 用 ``search_notes("相關關鍵字")`` 搜尋過去經驗
+2. **任務完成後** — 用 ``write_note`` 在 ``$agent_folder/`` 資料夾更新或新增筆記
+3. **未更新記憶 = 任務未完成**（SubagentStop 會自動偵測）
+
+### 筆記格式:
+```markdown
+# 標題
+描述。
+## Observations
+- key :: value
+## Relations
+- relates_to [[其他筆記]]
+```
 "@
-        
-        $output = @{
-            continue = $true
-            hookSpecificOutput = @{
-                hookEventName = "SubagentStart"
-                additionalContext = $context
-            }
-        }
-    } else {
-        $output = @{
-            continue = $true
-            systemMessage = "未找到 $agent_type 的記憶文件"
+
+    $output = @{
+        continue = $true
+        hookSpecificOutput = @{
+            hookEventName = "SubagentStart"
+            additionalContext = $context
         }
     }
-    
+
     $output | ConvertTo-Json -Depth 10
     exit 0
 }

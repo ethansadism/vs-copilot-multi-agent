@@ -1,9 +1,9 @@
 ---
 name: "Database Expert"
 description: "數據庫專家 - 設計數據模型、優化查詢、管理數據遷移"
-tools: ['read', 'edit', 'search', 'mcp']
+tools: ['read', 'edit', 'search', 'basic-memory/*']
 # 請在 VS Code Chat 模型選擇器中確認可用名稱
-model: "claude sonnet 4.6"
+model: "Claude Sonnet 4.6"
 ---
 
 # Database Expert Agent

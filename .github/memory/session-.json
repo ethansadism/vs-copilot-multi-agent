@@ -1,0 +1,30 @@
+{
+    "session_id":  null,
+    "completed_agents":  [
+                             {
+                                 "status":  "COMPLETED",
+                                 "timestamp":  "2026-03-17T10:16:25.9571419+08:00",
+                                 "session_id":  null,
+                                 "report_file":  ".github/reports/Database Expert-report-20260317_101625.md",
+                                 "agent_id":  "88d6f5eb-97e3-40e3-bb6c-58b90e573fe2",
+                                 "agent_type":  "Database Expert"
+                             },
+                             {
+                                 "status":  "COMPLETED",
+                                 "timestamp":  "2026-03-17T10:17:45.2209335+08:00",
+                                 "session_id":  null,
+                                 "report_file":  ".github/reports/Frontend Engineer-report-20260317_101745.md",
+                                 "agent_id":  "e031a276-796e-463b-97f1-bdb8261ea69e",
+                                 "agent_type":  "Frontend Engineer"
+                             },
+                             {
+                                 "status":  "COMPLETED",
+                                 "timestamp":  "2026-03-17T10:20:04.1533480+08:00",
+                                 "session_id":  null,
+                                 "report_file":  ".github/reports/Crawler Expert-report-20260317_102004.md",
+                                 "agent_id":  "e802158e-1e2e-4025-b86a-18bd4f628060",
+                                 "agent_type":  "Crawler Expert"
+                             }
+                         ],
+    "started_at":  "2026-03-17T10:16:25.9733066+08:00"
+}

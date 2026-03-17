@@ -1,9 +1,9 @@
 #!/bin/bash
-# SubagentStart Hook - Load memory for subagent
-# Loads specific memory based on agent type
+# SubagentStart Hook - 注入 Basic Memory 記憶提示給 Subagent
+# v0.02: 改用 Basic Memory (memory-kb)，不再讀 JSON
 
 python3 -c '
-import sys, json, os
+import sys, json, os, glob, datetime
 
 try:
     input_str = sys.stdin.read()
@@ -11,67 +11,71 @@ try:
         sys.exit(0)
 
     data = json.loads(input_str)
-    agent_type = data.get("agent_type")
-    agent_id = data.get("agent_id")
-    memory_dir = ".github/memory"
-    
-    memory_map = {
-        "Crawler Expert": "crawler-memory.json",
-        "Database Expert": "database-memory.json",
-        "Frontend Engineer": "frontend-memory.json"
+    agent_type = data.get("agent_type", "unknown")
+    agent_id = data.get("agent_id", "unknown")
+    memory_kb = ".github/memory-kb"
+    log_dir = ".github/logs"
+
+    os.makedirs(log_dir, exist_ok=True)
+
+    # 流程日誌
+    with open(os.path.join(log_dir, "hook-flow.log"), "a") as f:
+        f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [SubagentStart] >>> {agent_type} (ID: {agent_id}) spawned\n")
+
+    folder_map = {
+        "Crawler Expert": "crawler",
+        "Database Expert": "database",
+        "Frontend Engineer": "frontend"
     }
-    
-    memory_file = memory_map.get(agent_type)
-    
-    if memory_file:
-        file_path = os.path.join(memory_dir, memory_file)
-        if os.path.exists(file_path):
-            with open(file_path, "r") as f:
-                agent_memory = json.load(f)
-            
-            solved_problems_json = json.dumps(agent_memory.get("solved_problems", []), indent=2, ensure_ascii=False)
-            best_practices = "\n- ".join(agent_memory.get("best_practices", []))
-            tools_libs = ", ".join(agent_memory.get("tools_and_libraries", []))
-            last_update = agent_memory.get("last_update", "Unknown")
-            
-            context = f"""
-## {agent_type} Memory Loaded (Agent ID: {agent_id})
 
-**Last Update**: {last_update}
+    agent_folder = folder_map.get(agent_type, "")
 
-### Solved Problems:
-{solved_problems_json}
+    # 列出該 agent 資料夾中的現有筆記
+    notes_list = ""
+    folder_path = os.path.join(memory_kb, agent_folder) if agent_folder else ""
+    if folder_path and os.path.isdir(folder_path):
+        notes = [f for f in os.listdir(folder_path) if f.endswith(".md")]
+        if notes:
+            notes_list = "\n".join(f"  - {n}" for n in sorted(notes))
 
-### Best Practices:
-- {best_practices}
+    # 記錄啟動時間戳（供 SubagentStop 檢查記憶更新）
+    ts_file = os.path.join(log_dir, f"subagent-start-{agent_id}.timestamp")
+    with open(ts_file, "w") as f:
+        f.write(datetime.datetime.now().isoformat())
 
-### Tools & Libraries:
-{tools_libs}
+    context = f"""## {agent_type} Basic Memory 已就緒 (Agent ID: {agent_id})
 
----
-**IMPORTANT**: Check solved problems before starting task to avoid repetition.
+你的記憶資料夾: `{memory_kb}/{agent_folder}/`
+
+### 現有筆記:
+{notes_list}
+
+### 必做事項（強制）:
+1. **任務開始前** — 用 `search_notes("相關關鍵字")` 搜尋過去經驗
+2. **任務完成後** — 用 `write_note` 在 `{agent_folder}/` 資料夾更新或新增筆記
+3. **未更新記憶 = 任務未完成**（SubagentStop 會自動偵測）
+
+### 筆記格式:
+```markdown
+# 標題
+描述。
+## Observations
+- key :: value
+## Relations
+- relates_to [[其他筆記]]
+```
 """
-            output = {
-                "continue": True,
-                "hookSpecificOutput": {
-                    "hookEventName": "SubagentStart",
-                    "additionalContext": context
-                }
-            }
-        else:
-            output = {
-                "continue": True,
-                "systemMessage": f"Memory file not found for {agent_type}"
-            }
-    else:
-        # Unknown agent type or no memory mapping
-        output = {
-            "continue": True
-            # Optional: systemMessage could be added if we want to warn
+
+    output = {
+        "continue": True,
+        "hookSpecificOutput": {
+            "hookEventName": "SubagentStart",
+            "additionalContext": context
         }
+    }
 
     print(json.dumps(output))
 
 except Exception as e:
-     print(json.dumps({"continue": True, "systemMessage": f"SubagentStart Hook Error: {str(e)}"}))
+    print(json.dumps({"continue": True, "systemMessage": f"SubagentStart Hook Error: {str(e)}"}))
 '

@@ -32,3 +32,13 @@ permalink: multi-agent-system/project/known-issues
 
 - part_of [[Project Overview]]
 - resolved_by [[Crawler Expert]]
+
+## STARTUP-PATH-001 mta_demo3 啟動路徑錯誤
+
+- issue_id :: STARTUP-PATH-001
+- title :: mta_demo3 啟動時使用錯誤工作目錄導致 ERR_CONNECTION_REFUSED
+- description :: 在 workspace root 執行 `py -3 app.py` 會找不到檔案，Flask 未啟動，瀏覽器顯示連線被拒
+- solution :: 改用 `py -3 mta_demo3/app.py` 或先 `cd mta_demo3` 再 `py -3 app.py`
+- date_solved :: 2026-03-17
+- agent_responsible :: Crawler Expert
+- status :: SOLVED

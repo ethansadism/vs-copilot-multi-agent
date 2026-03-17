@@ -1,6 +1,6 @@
 #!/bin/bash
 # PreCompact Hook - 在 context 被壓縮前保護關鍵狀態
-# 當對話太長需要壓縮時，提醒 agent 當前的關鍵資訊
+# v0.02: 改用 Basic Memory (memory-kb)，不再讀 JSON
 
 python3 -c '
 import sys, json, os
@@ -11,46 +11,56 @@ try:
         sys.exit(0)
 
     data = json.loads(input_str)
-    memory_file = ".github/memory/project-state.json"
+    memory_kb = ".github/memory-kb"
+    log_dir = ".github/logs"
 
-    context_parts = ["## Context 即將被壓縮 - 關鍵資訊保留\n"]
+    os.makedirs(log_dir, exist_ok=True)
 
-    # 重新注入 project-state 的關鍵資訊，避免壓縮後遺失
-    if os.path.exists(memory_file):
-        with open(memory_file, "r") as f:
-            state = json.load(f)
+    import datetime
+    with open(os.path.join(log_dir, "hook-flow.log"), "a") as f:
+        trigger = data.get("trigger", "unknown")
+        f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [PreCompact] Context compaction triggered (reason: {trigger})\n")
 
-        active_tasks = state.get("active_tasks", [])
-        known_issues = state.get("known_issues", [])
+    summary = ""
+    overview_file = os.path.join(memory_kb, "project", "project-overview.md")
+    if os.path.exists(overview_file):
+        # 提取 Observations 中的關鍵資訊
+        observations = []
+        with open(overview_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if " :: " in line and line.startswith("- "):
+                    observations.append(line)
 
-        if active_tasks:
-            context_parts.append("### 當前活躍任務:")
-            for task in active_tasks:
-                if isinstance(task, dict):
-                    context_parts.append(f"- {task.get(\"description\", task.get(\"task_id\", str(task)))}")
-                else:
-                    context_parts.append(f"- {task}")
+        obs_text = "\n".join(observations[:10])
 
-        if known_issues:
-            context_parts.append("\n### 已知問題（勿重複犯錯）:")
-            for issue in known_issues:
-                if isinstance(issue, dict):
-                    issue_id = issue.get("issue_id", "")
-                    title = issue.get("title", "")
-                    solution = issue.get("solution", "")
-                    context_parts.append(f"- {issue_id}: {title} → 解法: {solution}")
-                else:
-                    context_parts.append(f"- {issue}")
+        # 各 folder 筆記數量
+        folders = ["project", "crawler", "database", "frontend"]
+        note_counts = []
+        for folder in folders:
+            folder_path = os.path.join(memory_kb, folder)
+            count = len([f for f in os.listdir(folder_path) if f.endswith(".md")]) if os.path.isdir(folder_path) else 0
+            note_counts.append(f"  - {folder}/: {count} 筆記")
+        counts_text = "\n".join(note_counts)
 
-    context_parts.append("\n如需完整記憶，請重新讀取 .github/memory/ 下的檔案。")
+        summary = f"""## 專案記憶摘要（PreCompact 自動注入）
 
-    output = {
-        "continue": True,
-        "hookSpecificOutput": {
+### 專案狀態:
+{obs_text}
+
+### 知識庫統計:
+{counts_text}
+
+### 記憶位置: .github/memory-kb/
+使用 `search_notes("關鍵字")` 搜尋記憶，使用 `write_note` 更新記憶。
+"""
+
+    output = {"continue": True}
+    if summary:
+        output["hookSpecificOutput"] = {
             "hookEventName": "PreCompact",
-            "additionalContext": "\n".join(context_parts)
+            "additionalContext": summary
         }
-    }
 
     print(json.dumps(output))
 

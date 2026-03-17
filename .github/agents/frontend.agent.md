@@ -1,9 +1,9 @@
 ---
 name: "Frontend Engineer"
 description: "前端工程師 - 實現 UI/UX、設計圖表、優化視覺效果"
-tools: ['read', 'edit', 'search', 'mcp']
+tools: ['read', 'edit', 'search', 'basic-memory/*']
 # 請在 VS Code Chat 模型選擇器中確認可用名稱
-model: "claude sonnet 4.6"
+model: "Claude Sonnet 4.6"
 ---
 
 # Frontend Engineer Agent

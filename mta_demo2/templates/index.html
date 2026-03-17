@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>即時台股盤中監看系統</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Chart.js 4.x -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- Socket.IO Client 4.x -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+    <style>
+        /* ── 全域 ──────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:       #1a1a2e;
+            --card:     #16213e;
+            --card-alt: #0f3460;
+            --up:       #ef4444;
+            --down:     #22c55e;
+            --flat:     #94a3b8;
+            --text:     #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent:   #3b82f6;
+            --border:   #1e3a5f;
+            --radius:   12px;
+        }
+        body {
+            font-family: 'Noto Sans TC', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        a { color: var(--accent); text-decoration: none; }
+
+        /* ── Header ────────────────────────────────── */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .header-left h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+        .header-left .clock {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        .status-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.connected    { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+        .status-dot.disconnected { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+        .status-dot.reconnecting { background: #f59e0b; box-shadow: 0 0 6px #f59e0b88; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: .3; } }
+
+        /* ── 主容器 ────────────────────────────────── */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ── 股票卡片區 ────────────────────────────── */
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .stock-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: transform .2s, box-shadow .2s;
+            cursor: default;
+        }
+        .stock-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.35);
+        }
+        .stock-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+        .stock-card .stock-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .stock-card .stock-id {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .stock-card .price-main {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 4px 0;
+            transition: color .3s;
+        }
+        .stock-card .price-change {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            transition: color .3s;
+        }
+        .stock-card .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 12px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .stock-card .details span.val { color: var(--text); }
+        .up   { color: var(--up)   !important; }
+        .down { color: var(--down) !important; }
+        .flat { color: var(--flat) !important; }
+
+        /* ── 卡片（通用） ──────────────────────────── */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .panel-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        /* ── 走勢圖 ────────────────────────────────── */
+        .chart-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .chart-tab {
+            padding: 5px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: all .2s;
+        }
+        .chart-tab:hover { border-color: var(--accent); color: var(--text); }
+        .chart-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+        .chart-wrapper canvas { width: 100% !important; }
+
+        /* ── 通知區 ────────────────────────────────── */
+        .alert-list {
+            max-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .alert-list::-webkit-scrollbar { width: 6px; }
+        .alert-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .alert-item {
+            display: flex;
+            gap: 10px;
+            font-size: 0.85rem;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: var(--card-alt);
+            align-items: flex-start;
+        }
+        .alert-item .time {
+            flex-shrink: 0;
+            color: var(--text-dim);
+            min-width: 46px;
+        }
+        .alert-empty {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        /* ── 監看管理 ──────────────────────────────── */
+        .watch-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .watch-form input {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .watch-form input:focus { border-color: var(--accent); }
+        .watch-form button {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .watch-form button:hover { background: #2563eb; }
+        .watch-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .watch-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: var(--card-alt);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .watch-tag .remove {
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 1rem;
+            line-height: 1;
+            transition: color .2s;
+        }
+        .watch-tag .remove:hover { color: var(--up); }
+
+        /* ── Footer ────────────────────────────────── */
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            padding: 14px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── 響應式 ────────────────────────────────── */
+        @media (max-width: 640px) {
+            .header { padding: 12px 16px; }
+            .header-left h1 { font-size: 1.1rem; }
+            .container { padding: 12px; }
+            .chart-wrapper { height: 240px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────── -->
+<header class="header">
+    <div class="header-left">
+        <h1>🇹🇼 即時台股盤中監看系統</h1>
+        <div class="clock" id="clock">目前時間：載入中…</div>
+    </div>
+    <div class="header-right">
+        <span>連線狀態</span>
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">連線中…</span>
+    </div>
+</header>
+
+<div class="container">
+    <!-- ── 股票卡片 ────────────────────────────────── -->
+    <section class="stock-grid" id="stockGrid">
+        <!-- 由 JS 動態渲染 -->
+    </section>
+
+    <!-- ── 走勢圖 ──────────────────────────────────── -->
+    <section class="panel">
+        <div class="panel-title">📈 即時走勢圖</div>
+        <div class="chart-tabs" id="chartTabs">
+            <!-- 由 JS 動態渲染 -->
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="priceChart"></canvas>
+        </div>
+    </section>
+
+    <!-- ── 通知紀錄 ────────────────────────────────── -->
+    <section class="panel">
+        <div class="panel-title">🔔 通知紀錄</div>
+        <div class="alert-list" id="alertList">
+            <div class="alert-empty">目前沒有通知</div>
+        </div>
+    </section>
+
+    <!-- ── 監看管理 ────────────────────────────────── -->
+    <section class="panel">
+        <div class="panel-title">⚙️ 監看管理</div>
+        <div class="watch-form">
+            <input id="inputStockId" type="text" placeholder="股票代號（如 2330）" maxlength="10" />
+            <input id="inputStockName" type="text" placeholder="股票名稱（如 台積電）" maxlength="20" />
+            <button id="btnAdd">加入監看</button>
+        </div>
+        <div class="watch-tags" id="watchTags">
+            <!-- 由 JS 動態渲染 -->
+        </div>
+    </section>
+</div>
+
+<!-- ── Footer ──────────────────────────────────────── -->
+<footer class="footer" id="footer">
+    每 1 小時自動儲存至 SQLite │ 下次儲存：計算中…
+</footer>
+
+<script>
+/* ================================================================
+   即時台股監看系統 — 前端邏輯
+   ================================================================ */
+
+// ── 狀態 ─────────────────────────────────────────────
+const state = {
+    stocks: {},          // { stock_id: { ...最新數據 } }
+    watchlist: [],       // [{ stock_id, stock_name }]
+    alerts: [],          // [{ time, message, type }]
+    chartStock: null,    // 目前選中走勢圖的 stock_id
+    chartData: {},       // { stock_id: [{ time, price }] }
+};
+
+const MAX_CHART_POINTS = 100;
+const MAX_ALERTS = 50;
+
+// ── Socket.IO 連線 ──────────────────────────────────
+const socket = io();
+
+const $dot    = document.getElementById('statusDot');
+const $status = document.getElementById('statusText');
+
+socket.on('connect', () => {
+    $dot.className = 'status-dot connected';
+    $status.textContent = '已連線';
+});
+socket.on('disconnect', () => {
+    $dot.className = 'status-dot disconnected';
+    $status.textContent = '已斷線';
+});
+socket.on('reconnecting', () => {
+    $dot.className = 'status-dot reconnecting';
+    $status.textContent = '重新連線中…';
+});
+socket.on('reconnect', () => {
+    $dot.className = 'status-dot connected';
+    $status.textContent = '已連線';
+});
+
+// ── 即時時鐘 ─────────────────────────────────────────
+function updateClock() {
+    const now = new Date();
+    const str = now.getFullYear() + '-'
+        + String(now.getMonth() + 1).padStart(2, '0') + '-'
+        + String(now.getDate()).padStart(2, '0') + ' '
+        + String(now.getHours()).padStart(2, '0') + ':'
+        + String(now.getMinutes()).padStart(2, '0') + ':'
+        + String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('clock').textContent = '目前時間：' + str;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── 工具函式 ─────────────────────────────────────────
+/** 千分位格式 */
+function fmt(n) {
+    if (n == null) return '-';
+    return Number(n).toLocaleString('zh-TW', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+/** 張數千分位（無小數） */
+function fmtVol(n) {
+    if (n == null) return '-';
+    return Number(n).toLocaleString('zh-TW');
+}
+/** 漲跌 class */
+function changeClass(val) {
+    if (val > 0) return 'up';
+    if (val < 0) return 'down';
+    return 'flat';
+}
+/** 漲跌符號 */
+function changeSign(val) {
+    if (val > 0) return '▲';
+    if (val < 0) return '▼';
+    return '－';
+}
+
+// ── 股票卡片渲染 ─────────────────────────────────────
+function renderStockCards() {
+    const grid = document.getElementById('stockGrid');
+    const ids = Object.keys(state.stocks);
+
+    if (ids.length === 0) {
+        grid.innerHTML = '<div style="color:var(--text-dim); text-align:center; grid-column:1/-1; padding:40px 0;">尚未加入任何監看股票，請在下方「監看管理」區新增。</div>';
+        return;
+    }
+
+    grid.innerHTML = ids.map(id => {
+        const s = state.stocks[id];
+        const change = s.change ?? 0;
+        const changePct = s.change_percent ?? 0;
+        const cls = changeClass(change);
+        return `
+        <div class="stock-card" data-id="${id}">
+            <div class="card-header">
+                <span class="stock-label">${s.stock_name || id}</span>
+                <span class="stock-id">${id}</span>
+            </div>
+            <div class="price-main ${cls}">💰 ${fmt(s.current_price)}</div>
+            <div class="price-change ${cls}">
+                ${changeSign(change)} ${change > 0 ? '+' : ''}${fmt(change)}（${change > 0 ? '+' : ''}${changePct.toFixed(2)}%）
+            </div>
+            <div class="details">
+                <div>量: <span class="val">${fmtVol(s.volume)} 張</span></div>
+                <div>開: <span class="val">${fmt(s.open_price)}</span></div>
+                <div>高: <span class="val">${fmt(s.high_price)}</span></div>
+                <div>低: <span class="val">${fmt(s.low_price)}</span></div>
+                <div>買: <span class="val">${fmt(s.best_bid)}</span></div>
+                <div>賣: <span class="val">${fmt(s.best_ask)}</span></div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Chart.js 走勢圖 ─────────────────────────────────
+let priceChart = null;
+
+function initChart() {
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    priceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '股價',
+                data: [],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.08)',
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0.3,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#16213e',
+                    titleColor: '#e2e8f0',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#1e3a5f',
+                    borderWidth: 1,
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#94a3b8', maxTicksLimit: 10 },
+                    grid:  { color: 'rgba(30,58,95,0.4)' },
+                },
+                y: {
+                    ticks: { color: '#94a3b8' },
+                    grid:  { color: 'rgba(30,58,95,0.4)' },
+                }
+            }
+        }
+    });
+}
+
+function updateChart() {
+    if (!priceChart || !state.chartStock) return;
+    const points = state.chartData[state.chartStock] || [];
+    priceChart.data.labels = points.map(p => p.time);
+    priceChart.data.datasets[0].data = points.map(p => p.price);
+    priceChart.data.datasets[0].label = state.chartStock;
+    priceChart.update('none');  // 不做動畫，提升效能
+}
+
+function renderChartTabs() {
+    const tabs = document.getElementById('chartTabs');
+    const ids = Object.keys(state.stocks);
+    if (ids.length === 0) {
+        tabs.innerHTML = '';
+        return;
+    }
+    // 若沒有選中，預設第一個
+    if (!state.chartStock || !ids.includes(state.chartStock)) {
+        state.chartStock = ids[0];
+    }
+    tabs.innerHTML = ids.map(id => {
+        const s = state.stocks[id];
+        const active = id === state.chartStock ? ' active' : '';
+        return `<button class="chart-tab${active}" data-id="${id}">${s.stock_name || id}（${id}）</button>`;
+    }).join('');
+
+    tabs.querySelectorAll('.chart-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            state.chartStock = btn.dataset.id;
+            renderChartTabs();
+            updateChart();
+        });
+    });
+}
+
+// ── 通知渲染 ─────────────────────────────────────────
+function renderAlerts() {
+    const list = document.getElementById('alertList');
+    if (state.alerts.length === 0) {
+        list.innerHTML = '<div class="alert-empty">目前沒有通知</div>';
+        return;
+    }
+    list.innerHTML = state.alerts.map(a => `
+        <div class="alert-item">
+            <span class="time">${a.time || ''}</span>
+            <span>${a.icon || '⚠️'} ${a.message || ''}</span>
+        </div>
+    `).join('');
+    // 自動捲到最底
+    list.scrollTop = list.scrollHeight;
+}
+
+// ── 監看清單渲染 ─────────────────────────────────────
+function renderWatchTags() {
+    const tags = document.getElementById('watchTags');
+    if (state.watchlist.length === 0) {
+        tags.innerHTML = '<span style="color:var(--text-dim); font-size:.85rem;">尚無監看股票</span>';
+        return;
+    }
+    tags.innerHTML = state.watchlist.map(w => `
+        <span class="watch-tag">
+            ${w.stock_name || w.stock_id}（${w.stock_id}）
+            <span class="remove" data-id="${w.stock_id}" title="移除">&times;</span>
+        </span>
+    `).join('');
+
+    tags.querySelectorAll('.remove').forEach(el => {
+        el.addEventListener('click', () => removeStock(el.dataset.id));
+    });
+}
+
+// ── API 操作 ─────────────────────────────────────────
+async function loadWatchlist() {
+    try {
+        const res = await fetch('/api/watchlist');
+        state.watchlist = await res.json();
+        renderWatchTags();
+    } catch (e) {
+        console.error('載入監看清單失敗', e);
+    }
+}
+
+async function loadAlerts() {
+    try {
+        const res = await fetch('/api/alerts');
+        state.alerts = await res.json();
+        renderAlerts();
+    } catch (e) {
+        console.error('載入通知失敗', e);
+    }
+}
+
+async function addStock() {
+    const idInput   = document.getElementById('inputStockId');
+    const nameInput = document.getElementById('inputStockName');
+    const stockId   = idInput.value.trim();
+    const stockName = nameInput.value.trim();
+
+    if (!stockId) { idInput.focus(); return; }
+
+    try {
+        await fetch('/api/watchlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock_id: stockId, stock_name: stockName || stockId }),
+        });
+        idInput.value = '';
+        nameInput.value = '';
+        await loadWatchlist();
+    } catch (e) {
+        console.error('新增失敗', e);
+    }
+}
+
+async function removeStock(stockId) {
+    try {
+        await fetch('/api/watchlist/' + encodeURIComponent(stockId), { method: 'DELETE' });
+        // 前端同步移除
+        delete state.stocks[stockId];
+        delete state.chartData[stockId];
+        await loadWatchlist();
+        renderStockCards();
+        renderChartTabs();
+        updateChart();
+    } catch (e) {
+        console.error('移除失敗', e);
+    }
+}
+
+// ── Socket.IO 事件處理 ──────────────────────────────
+socket.on('stock_update', (data) => {
+    const id = data.stock_id;
+    if (!id) return;
+
+    // 更新最新價格
+    state.stocks[id] = { ...state.stocks[id], ...data };
+
+    // 走勢圖數據
+    if (!state.chartData[id]) state.chartData[id] = [];
+    const now = new Date();
+    const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
+    state.chartData[id].push({ time: timeStr, price: data.current_price });
+    if (state.chartData[id].length > MAX_CHART_POINTS) {
+        state.chartData[id].shift();
+    }
+
+    renderStockCards();
+    renderChartTabs();
+    updateChart();
+});
+
+socket.on('alert', (data) => {
+    const now = new Date();
+    const timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0');
+    state.alerts.unshift({
+        time: timeStr,
+        message: data.message || '',
+        icon: data.icon || '⚠️',
+    });
+    if (state.alerts.length > MAX_ALERTS) {
+        state.alerts.pop();
+    }
+    renderAlerts();
+});
+
+// ── Footer 下次儲存時間 ─────────────────────────────
+function updateFooter() {
+    const now = new Date();
+    // 下一個整點
+    const next = new Date(now);
+    next.setHours(next.getHours() + 1, 0, 0, 0);
+    const hh = String(next.getHours()).padStart(2, '0');
+    const mm = String(next.getMinutes()).padStart(2, '0');
+    const ss = String(next.getSeconds()).padStart(2, '0');
+    document.getElementById('footer').textContent =
+        `每 1 小時自動儲存至 SQLite │ 下次儲存：${hh}:${mm}:${ss}`;
+}
+setInterval(updateFooter, 30000);
+updateFooter();
+
+// ── 事件綁定 ─────────────────────────────────────────
+document.getElementById('btnAdd').addEventListener('click', addStock);
+document.getElementById('inputStockName').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addStock();
+});
+document.getElementById('inputStockId').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('inputStockName').focus();
+});
+
+// ── 初始化 ───────────────────────────────────────────
+(async function init() {
+    initChart();
+    await loadWatchlist();
+    await loadAlerts();
+    renderStockCards();
+})();
+</script>
+</body>
+</html>

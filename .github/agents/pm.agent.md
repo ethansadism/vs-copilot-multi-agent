@@ -1,12 +1,12 @@
 ---
 name: "Project Manager"
 description: "協調員 - 管理項目進度、分配任務、整合結果和記憶"
-tools: ['agent', 'read', 'edit', 'search', 'web', 'mcp']
+tools: ['agent', 'read', 'edit', 'search', 'web', 'todo', 'basic-memory/*']
 # 允許 PM 呼叫所有已註冊的 subagent
 agents: ['*']
 # PM 需要較強推理能力；請根據你的 Copilot 方案調整可用模型名稱
 # 可在 VS Code Chat 的模型選擇器（Model Picker）中確認可用的模型名稱
-model: "claude opus 4.6"
+model: "Claude Opus 4.6"
 # 禁止被其他 agent 呼叫（PM 是頂層協調者）
 disable-model-invocation: true
 ---

@@ -1,9 +1,9 @@
 ---
 name: "Crawler Expert"
 description: "爬蟲專家 - 開發和優化網站爬蟲，處理代理和反爬蟲問題"
-tools: ['read', 'edit', 'execute', 'search', 'mcp']
+tools: ['read', 'edit', 'execute', 'search', 'basic-memory/*']
 # 優先使用 Sonnet；請在 VS Code Chat 模型選擇器中確認可用名稱
-model: "claude sonnet 4.6"
+model: "Claude Sonnet 4.6"
 ---
 
 # Crawler Expert Agent

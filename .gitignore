@@ -39,8 +39,9 @@ Thumbs.db
 
 # Project specific
 .github/logs/*.log
+.github/logs/*.json
+.github/logs/*.timestamp
 .github/reports/*.md
-.github/memory/session-*.json
 stock_data.db
 *.db
 .env

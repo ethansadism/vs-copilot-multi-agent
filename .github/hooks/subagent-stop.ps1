@@ -52,12 +52,58 @@ try {
         } | ConvertTo-Json | Set-Content $session_log
     }
     
-    # 返回完成確認，提醒用 write_note 更新記憶
+    # === 記憶更新偵測 ===
+    $folder_map = @{
+        "Crawler Expert"    = "crawler"
+        "Database Expert"   = "database"
+        "Frontend Engineer" = "frontend"
+    }
+    $agent_folder = $folder_map[$agent_type]
+    $memory_updated = $false
+    $warning = ""
+
+    # 讀取 SubagentStart 記錄的啟動時間戳
+    $ts_file = "$log_dir/subagent-start-$agent_id.timestamp"
+    $start_time = $null
+    if (Test-Path $ts_file) {
+        $start_time = [datetime](Get-Content $ts_file)
+        Remove-Item $ts_file -Force
+    } else {
+        # 無時間戳則用 10 分鐘前作為基準
+        $start_time = (Get-Date).AddMinutes(-10)
+    }
+
+    # 檢查 agent 的 memory-kb folder 是否有新增或修改的檔案
+    if ($agent_folder -and (Test-Path "$memory_kb/$agent_folder")) {
+        $modified_notes = Get-ChildItem "$memory_kb/$agent_folder" -Filter "*.md" | Where-Object { $_.LastWriteTime -gt $start_time }
+        if ($modified_notes) {
+            $memory_updated = $true
+            $updated_list = ($modified_notes | Select-Object -ExpandProperty Name) -join ", "
+        }
+    }
+
+    if (-not $memory_updated) {
+        $warning = @"
+
+### ⚠️ 記憶未更新警告
+$agent_type 在本次任務中**未更新記憶筆記**（$memory_kb/$agent_folder/ 無新增或修改）。
+請立即用 ``write_note`` 記錄：
+- 完成了什麼任務
+- 遇到的問題和解決方案
+- 可複用的經驗
+
+**未更新記憶 = 任務未完成。**
+"@
+    } else {
+        $warning = "`n已偵測到記憶更新: $updated_list"
+    }
+
+    # 返回完成確認 + 記憶偵測結果
     $output = @{
         continue = $true
         hookSpecificOutput = @{
             hookEventName = "SubagentStop"
-            additionalContext = "$agent_type 已完成任務。請確認已用 write_note 更新記憶筆記，報告位置: $report_file"
+            additionalContext = "$agent_type 已完成任務。報告位置: $report_file$warning"
         }
     }
     
@@ -66,5 +112,6 @@ try {
 }
 catch {
     # 非阻塞錯誤 - 允許 Agent 繼續
-    exit 1
+    @{ continue = $true; systemMessage = "SubagentStop Hook 錯誤：$_" } | ConvertTo-Json
+    exit 0
 }
