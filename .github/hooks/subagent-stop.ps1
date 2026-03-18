@@ -42,8 +42,11 @@ try {
     $session_log = "$log_dir/session-$session_id.json"
     if (Test-Path $session_log) {
         $log = Get-Content $session_log | ConvertFrom-Json
-        $log.completed_agents += $completion_log
-        $log | ConvertTo-Json | Set-Content $session_log
+        # 強制轉成陣列，避免單元素時 ConvertFrom-Json 解析為物件導致 += 行為異常
+        $agents = @($log.completed_agents)
+        $agents += $completion_log
+        $log.completed_agents = $agents
+        $log | ConvertTo-Json -Depth 10 | Set-Content $session_log
     } else {
         @{
             session_id = $session_id

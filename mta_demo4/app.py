@@ -29,7 +29,7 @@ db = USStockDatabase()
 
 # ── Crawler 初始化（Redis 連線失敗時 graceful fallback）─────────────────────────
 try:
-    crawler = USStockCrawler()
+    crawler = USStockCrawler(redis_port=6380)
     logger.info("USStockCrawler 初始化成功")
 except Exception as e:
     logger.warning("USStockCrawler 初始化失敗（無 Redis），仍可使用但無快取：%s", e)

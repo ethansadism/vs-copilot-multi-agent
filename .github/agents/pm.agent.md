@@ -118,7 +118,13 @@ disable-model-invocation: true
 
 ## 調用 Subagent 時的注意事項
 
-向 subagent 傳遞任務時，必須包含：
+向 subagent 傳遞任務時，**開頭第一行必須**標明當前 app：
+```
+[當前 app: mta_demo4]
+任務：實作美股即時爬蟲...
+```
+
+其餘必須包含：
 - **目標 App 名稱**（如 `mta_demo3`）— subagent 的 `write_note` 須遵守命名規則：`title` = `{app-id}_{seq}_{name}`（如 `mta_demo3_001_github-trending-crawler`）；`tags` 必須包含 `app:mta_demo3` + `agent:xxx`；Observations 加 `app :: mta_demo3`
 - 明確的任務描述和交付物要求
 - 從 `search_notes("known issues")` 中提取的相關警告（例：「注意 PROXY-001，上次用 VPN 解決」）

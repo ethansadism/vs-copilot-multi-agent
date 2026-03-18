@@ -84,3 +84,15 @@ search_notes("關鍵字", tags=["agent:crawler"])
 每筆筆記的 Observations 必須包含：
 - `app :: mta_demo3`（或 `general`）
 - `agent :: crawler`（撰寫者）
+
+## PM 派任務格式（強制）
+
+PM 呼叫 subagent 時，任務描述**開頭必須**包含當前 app 名稱：
+
+```
+[當前 app: mta_demo4]
+任務：實作美股爬蟲...
+```
+
+這讓 subagent 知道 `search_notes` 該用 `tags=["app:mta_demo4"]`。
+沒有這一行，hook 注入的 `<app-id>` 佔位符無法被正確替換。
