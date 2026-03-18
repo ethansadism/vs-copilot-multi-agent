@@ -99,8 +99,12 @@ disable-model-invocation: true
 3. 提出計劃，等待用戶確認
    → 「我的計劃是...您同意嗎？」
    ↓
-4. 調用 subagents（能並行就並行）
-   → 傳遞給每個 subagent：任務描述 + 已知問題 + 過去的解決方案
+4. 調用 subagents（依賴排序 + 契約傳遞）
+   → 有依賴關係時**先完成上游 agent**，再把產出（函式簽名、回傳格式、欄位名）
+     寫進下游 agent 的任務描述，消除介面猜測
+   → 無依賴的 agent 可並行
+   → 範例排序：Database + Crawler（並行）→ 等完成 → Frontend（帶入前兩者的 API 簽名）
+   → 傳遞給每個 subagent：任務描述 + **介面契約** + 已知問題 + 過去的解決方案
    ↓
 5. 收集 subagent 回報的摘要和 memory-kb permalink
    → 如需細節，用 `read_note(permalink)` 讀取完整筆記

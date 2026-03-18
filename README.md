@@ -1,6 +1,39 @@
-# Multi-Agent Collaboration System (v0.04)
+# Multi-Agent Collaboration System (v0.05)
 
 基於 VS Code Copilot 的多 Agent 協作系統。PM 協調、專家執行、Basic Memory 知識圖譜持久化。
+
+> **Clone → `bash setup.sh` → 打開 VS Code → 選擇 PM agent → 開始對話**
+
+## 快速開始
+
+### 前置需求
+
+- [VS Code](https://code.visualstudio.com/) 1.99+
+- [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) 訂閱（需支援 Custom Agents）
+- Python 3.10+（用於 Hook 腳本和 Demo App）
+
+### 安裝
+
+```bash
+git clone https://github.com/ethansadism/vs-copilot-multi-agent.git
+cd vs-copilot-multi-agent
+bash setup.sh
+```
+
+`setup.sh` 會自動：
+1. 安裝 [uv](https://github.com/astral-sh/uv)（如未安裝）
+2. 安裝 [basic-memory](https://github.com/basicmachines-co/basic-memory) MCP 伺服器
+3. 註冊知識庫專案並同步索引
+4. 建立 Python venv
+
+> **⚠️ VS Code 可能找不到 `uvx`**：如果 MCP 伺服器啟動失敗，將 `.vscode/mcp.json` 中的 `"command": "uvx"` 改為完整路徑（如 `"/Users/你/.local/bin/uvx"`）。`setup.sh` 會提示實際路徑。
+
+### 使用
+
+1. 用 VS Code 開啟專案
+2. 開啟 Copilot Chat（`Cmd+L` / `Ctrl+L`）
+3. 在 Agent 下拉菜單選擇 **Project Manager**
+4. 跟 PM 提需求，它會自動協調專家 Agent 完成任務
 
 ## 系統架構
 
@@ -13,10 +46,13 @@
 | **Database Expert** | 數據模型、遷移 | claude sonnet 4.6 | `database/` |
 | **Frontend Engineer** | UI/UX、圖表 | claude sonnet 4.6 | `frontend/` |
 
+> **模型名稱**取決於你的 Copilot 方案。請在 VS Code 模型選擇器中確認可用模型，並修改各 `.agent.md` 的 `model` 欄位。
+
 ### 核心機制
 
 - **Basic Memory MCP** — 所有記憶以 Markdown 筆記存放，透過語意搜尋 (`search_notes`) 和知識圖譜 (`[[wiki-links]]`) 關聯
 - **Subagent 編排** — PM 透過 `agents: ['*']` + `tools: ['agent']` 呼叫專家 agent
+- **介面契約傳遞** — PM 在分派有依賴的任務時，將上游 agent 的函式簽名/回傳格式寫入下游任務描述
 - **記憶自動提示** — SessionStart Hook 提醒 agent 用 `search_notes` 查詢記憶
 - **記憶更新檢查** — Stop Hook 在會話結束前檢查記憶筆記是否已更新
 - **長對話保護** — PreCompact Hook 在 context 壓縮前重新注入關鍵資訊
@@ -69,36 +105,7 @@
 └── mcp.json                 # Basic Memory MCP 伺服器設定
 ```
 
-## 快速開始
-
-### 前置需求
-
-1. **uv** — Python 套件管理器
-2. **Basic Memory** — `uv tool install basic-memory`
-3. 建立專案：`basic-memory project add multi-agent-system ".github/memory-kb"`
-
-### 1. 打開項目
-
-```bash
-code /path/to/this/project
-```
-
-VS Code 會自動：
-- 掃描 `.github/agents/` 載入所有 Agent
-- 從 `.github/hooks/hooks.json` 載入 Hook 配置
-- 從 `.vscode/mcp.json` 啟動 Basic Memory MCP 伺服器
-
-### 2. 與 PM 對話
-
-1. 打開 Copilot Chat（`Ctrl+L`）
-2. 在 Agents 下拉菜單中選擇 **Project Manager**
-3. 提交需求，例如：
-
-```
-我需要爬取 Dcard 股票版的數據，設計儲存模型，然後做一個 Dashboard 顯示前 10 支熱門股票。
-```
-
-### 3. PM 的標準工作流程
+## PM 的標準工作流程
 
 ```
 SessionStart Hook 提醒使用 search_notes
@@ -195,5 +202,5 @@ model: "claude sonnet 4.6"
 
 ---
 
-**版本**: 0.021
-**上次更新**: 2026-03-17
+**版本**: 0.05
+**上次更新**: 2026-03-18
