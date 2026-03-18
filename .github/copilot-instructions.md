@@ -16,6 +16,7 @@
 
 ```
 .github/memory-kb/
+├── contracts/   ← 跨 agent 介面合約（PM 寫入，所有 agent 可讀）
 ├── conversations/   ← 跨角色重要對話紀錄（架構決策、重要會話摘要）
 ├── project/         ← 全域專案狀態（PM 維護）
 ├── crawler/         ← 爬蟲經驗
@@ -55,7 +56,27 @@
 **完整範例：**
 - ✅ `2026-03-18_01_gap002-fix`
 - ✅ `2026-03-18_02_readme-update`
-- ❌ `2026-03-18_basic-memory-install-and-rules`（缺少 seq，同天多個會衝突）
+- ❓ `2026-03-18_basic-memory-install-and-rules`（缺少 seq，同天多個會衝突）
+
+### 介面合約（contracts/）
+
+**由 PM 建立，所有 agent 可讀。**
+
+**`title` 格式：`{app-id}_{seq}_contracts`**
+
+| 欄位 | 說明 | 範例 |
+|------|------|------|
+| `{app-id}` | app 縮寫 | `mta_demo4` |
+| `{seq}` | 3 位流水號 | `001` |
+
+**完整範例：**
+- ✅ `mta_demo4_001_contracts`
+- ✅ `mta_demo4_002_ws-contracts`（當同一 app 有多份合約時）
+- ❌ `mta_demo4_001_interface-contracts`（太冗長）
+
+**必填 tags：** `["app:{app-id}", "agent:pm", "type:contract"]`
+
+> 合約筆記是跨 session 持久的。新 session 的 PM 應在 Step 1 用 `search_notes("contracts", tags=["app:xxx", "type:contract"])` 查詢現有合約。
 
 ## Tag 規範（write_note 必填）
 
@@ -67,7 +88,7 @@ tags: ["app:mta_demo3", "agent:crawler", "experience"]
 |-----|------|------|
 | app | `app:mta_demo3` | 與特定 app 關聯；跨 app 通用筆記用 `app:general` |
 | agent | `agent:crawler` / `agent:database` / `agent:frontend` / `agent:pm` | 筆記撰寫者 |
-| type | `bug` / `experience` / `reference` / `session` | 筆記性質 |
+| type | `bug` / `experience` / `reference` / `session` / `contract` | 筆記性質 |
 
 ## 精確搜尋
 

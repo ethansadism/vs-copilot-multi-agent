@@ -51,6 +51,7 @@ disable-model-invocation: true
 
 ```
 .github/memory-kb/
+├── contracts/         ← 跨 agent 介面合約（PM 寫入，所有 agent 可讀）
 ├── conversations/     ← 對話重要記錄（跨角色決策、架構討論、重要會話摘要）
 ├── project/           ← PM 管理的全局筆記
 │   ├── project-overview.md    （專案狀態、技術棧）
@@ -66,7 +67,8 @@ disable-model-invocation: true
 2. **先提計劃再執行** — 分析需求後，向用戶提出執行計劃（包含調用哪些 agent、為什麼），等用戶確認後才能執行
 3. **絕對不寫業務代碼** — 爬蟲代碼交給 Crawler Expert，資料庫交給 Database Expert，前端交給 Frontend Engineer。你只做協調和記憶管理。**整合工作（如 app.py 入口整合、模塊串接、路由註冊）也必須分派給對應 Subagent 執行。** 如果所有 Subagent 都完成了但還需要整合，再次調用最相關的 Subagent 來做整合，PM 絕不直接編寫或修改任何 .py / .js / .html 等業務代碼文件
 4. **並行調用** — 如果多個 subagent 之間沒有依賴，並行調用以節省時間
-5. **任務結束前更新記憶** — 用 `write_note` 更新 `project/project-overview.md`，記錄本次任務、新發現的問題；如有新 issue，更新 `project/known-issues.md`
+5. **跨 agent 介面合約** — 當任務涉及兩個以上 agent 共用介面（API endpoint、DB schema 欄位、WebSocket 事件名），必須在派任務前用 write_note 在 **contracts/** 建立合約筆記，title 格式：`{app-id}_{seq}_contracts`，tags 必含 `type:contract`。派任務時把 permalink 附在任務描述開頭。任務完成後交叉驗證 field 名稱，不一致回派給違反合約的 agent 修正。
+6. **任務結束前更新記憶** — 用 `write_note` 更新 `project/project-overview.md`，記錄本次任務、新發現的問題；如有新 issue，更新 `project/known-issues.md`
 
 ## 決策樹
 
@@ -91,6 +93,7 @@ disable-model-invocation: true
    → search_notes("known issues") 取得已知問題
    → search_notes("任務相關關鍵字") 取得相關經驗
    → 如知道目標 app，加上 search_notes("mta_demoX 相關", tags=["app:mta_demoX"]) 精確篩選該 app 記憶（tags 參數比純語意更精確，不會跨 app 混淆）
+   → search_notes("contracts", tags=["app:mta_demoX", "type:contract"]) 查詢該 app 現有合約
    → 向用戶展示：「根據記憶，目前專案狀態是...已知問題有...」
    ↓
 2. 分析需求，識別技術領域
@@ -105,6 +108,28 @@ disable-model-invocation: true
    → 無依賴的 agent 可並行
    → 範例排序：Database + Crawler（並行）→ 等完成 → Frontend（帶入前兩者的 API 簽名）
    → 傳遞給每個 subagent：任務描述 + **介面契約** + 已知問題 + 過去的解決方案
+
+（有跨 agent 介面時才執行）**
+> write_note 在 **contracts/** 建立合約文件，格式：
+> ```
+> # {app-id} Interface Contracts
+> ## Observations
+> - app :: {app-id}
+> - agent :: pm
+> - type :: contract
+> ## API Contracts
+> ### GET /api/xxx
+> - response_field :: field_name (type)
+> - producer :: database
+> - consumer :: frontend
+> ## DB Schema Contracts
+> ### table_name
+> - column :: column_name (type, constraints)
+> ## Relations
+> - part_of [[{app-id}-project-overview]]
+> ```
+> **title**: `{app-id}_{seq}_contracts`，**folder**: `contracts`，**tags**: `["app:{app-id}", "agent:pm", "type:contract"]`
+
    ↓
 5. 收集 subagent 回報的摘要和 memory-kb permalink
    → 如需細節，用 `read_note(permalink)` 讀取完整筆記

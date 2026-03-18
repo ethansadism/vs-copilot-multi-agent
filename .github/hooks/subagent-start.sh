@@ -38,6 +38,14 @@ try:
         if notes:
             notes_list = "\n".join(f"  - {n}" for n in sorted(notes))
 
+    # 列出 contracts/ 共享合約筆記（所有 agent 皆可見）
+    contracts_list = ""
+    contracts_path = os.path.join(memory_kb, "contracts")
+    if os.path.isdir(contracts_path):
+        contracts = [f for f in os.listdir(contracts_path) if f.endswith(".md")]
+        if contracts:
+            contracts_list = "\n".join(f"  - {n}" for n in sorted(contracts))
+
     # 記錄啟動時間戳（供 SubagentStop 檢查記憶更新）
     ts_file = os.path.join(log_dir, f"subagent-start-{agent_id}.timestamp")
     with open(ts_file, "w") as f:
@@ -49,6 +57,11 @@ try:
 
 ### 現有筆記:
 {notes_list}
+
+### 介面合約（共享，所有 agent 皆可讀）:
+{contracts_list if contracts_list else '  （目前無合約）'}
+
+> 合約筆記由 PM 建立在 `contracts/` 資料夾。如 PM 在任務描述中附了合約 permalink，請用 `read_note(permalink)` 讀取完整規格。
 
 ### 搜尋規則（必須遵守）
 

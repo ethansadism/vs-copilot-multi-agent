@@ -52,7 +52,7 @@ bash setup.sh
 
 - **Basic Memory MCP** — 所有記憶以 Markdown 筆記存放，透過語意搜尋 (`search_notes`) 和知識圖譜 (`[[wiki-links]]`) 關聯
 - **Subagent 編排** — PM 透過 `agents: ['*']` + `tools: ['agent']` 呼叫專家 agent
-- **介面契約傳遞** — PM 在分派有依賴的任務時，將上游 agent 的函式簽名/回傳格式寫入下游任務描述
+- **介面契約傳遞** — PM 在分派有依賴的任務時，將上游 agent 的函式簽名/回傳格式寫入下游任務描述，並在 `contracts/` 資料夾建立合約筆記供所有 agent 查閱
 - **記憶自動提示** — SessionStart Hook 提醒 agent 用 `search_notes` 查詢記憶
 - **記憶更新檢查** — Stop Hook 在會話結束前檢查記憶筆記是否已更新
 - **長對話保護** — PreCompact Hook 在 context 壓縮前重新注入關鍵資訊
@@ -70,6 +70,7 @@ bash setup.sh
 ├── copilot-instructions.md  # 全域 Copilot 規則與對話開始 SOP（自動載入）
 │
 ├── memory-kb/               # Basic Memory 知識庫（Markdown 筆記）
+│   ├── contracts/       # 跨 agent 介面合約（PM 寫入，所有 agent 可讀）
 │   ├── conversations/       # 跨角色重要對話紀錄（架構決策、重要會話摘要）
 │   ├── project/             # PM 管理的全局筆記
 │   │   ├── project-overview.md    # 專案狀態、技術棧

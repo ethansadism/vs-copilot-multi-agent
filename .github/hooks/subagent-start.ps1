@@ -35,9 +35,20 @@ try {
         }
     }
 
+    # 列出 contracts/ 共享合約筆記（所有 agent 皆可見）
+    $contracts_list = ""
+    if (Test-Path "$memory_kb/contracts") {
+        $contracts = Get-ChildItem "$memory_kb/contracts" -Filter "*.md" | Select-Object -ExpandProperty Name
+        if ($contracts) {
+            $contracts_list = ($contracts | ForEach-Object { "  - $_" }) -join "`n"
+        }
+    }
+
     # 記錄啟動時間戳（供 SubagentStop 檢查記憶更新）
     $ts_file = "$log_dir/subagent-start-$agent_id.timestamp"
     Get-Date -Format "o" | Set-Content $ts_file
+
+    $contracts_display = if ($contracts_list) { $contracts_list } else { "  （目前無合約）" }
 
     $context = @"
 ## $agent_type Basic Memory 已就緒 (Agent ID: $agent_id)
@@ -46,6 +57,11 @@ try {
 
 ### 現有筆記:
 $notes_list
+
+### 介面合約（共享，所有 agent 皆可讀）:
+$contracts_display
+
+> 合約筆記由 PM 建立在 ``contracts/`` 資料夾。如 PM 在任務描述中附了合約 permalink，請用 ``read_note(permalink)`` 讀取完整規格。
 
 ### 搜尋規則（必須遵守）
 

@@ -61,8 +61,7 @@
 │  │                                                            │
 │  ├── copilot-instructions.md  # 全域規則與 SOP（自動載入）    │
 │  │                                                            │
-│  ├── memory-kb/           # Basic Memory 知識庫（Markdown）  │
-│  │   ├── conversations/   # 重要會話紀錄與架構決策            │
+│  ├── memory-kb/           # Basic Memory 知識庫（Markdown）  ││   │   ├── contracts/       # 跨 agent 介面合約（PM 寫入，所有 agent 可讀）││  │   ├── conversations/   # 重要會話紀錄與架構決策            │
 │  │   ├── project/         # PM 管理的全局筆記                │
 │  │   │   ├── project-overview.md                             │
 │  │   │   ├── known-issues.md                                 │
