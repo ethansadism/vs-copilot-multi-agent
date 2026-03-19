@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "description": "主題記憶索引 — 追蹤所有對話主題的狀態",
+  "topics": [
+    {
+      "name": "claude-code-migration",
+      "description": "VS Code Copilot → Claude Code 完整移植，含主題記憶系統設計",
+      "status": "active",
+      "created_at": "2026-03-20",
+      "updated_at": "2026-03-20"
+    }
+  ]
+}

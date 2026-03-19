@@ -1,0 +1,42 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "type": "command",
+      "command": "bash .claude/hooks/session-init.sh"
+    },
+    {
+      "event": "UserPromptSubmit",
+      "type": "command",
+      "command": "bash .claude/hooks/user-prompt-submit.sh"
+    },
+    {
+      "event": "SubagentStart",
+      "type": "command",
+      "command": "bash .claude/hooks/subagent-start.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "type": "command",
+      "command": "bash .claude/hooks/post-tool-use.sh"
+    },
+    {
+      "event": "PreCompact",
+      "type": "command",
+      "command": "bash .claude/hooks/pre-compact.sh"
+    },
+    {
+      "event": "Stop",
+      "type": "command",
+      "command": "bash .claude/hooks/stop.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "type": "command",
+      "command": "bash .claude/hooks/validate-write-note.sh",
+      "matcher": {
+        "toolNames": ["mcp__basic-memory__write_note"]
+      }
+    }
+  ]
+}

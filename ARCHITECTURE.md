@@ -1,4 +1,8 @@
-# 系統架構說明（v0.04 — Basic Memory）
+# 系統架構說明（v0.07 — 雙平台 + 主題記憶）
+
+> 本系統同時支援 **VS Code Copilot** 和 **Claude Code** 兩個平台。
+> VS Code 版本位於 `.github/`，Claude Code 版本位於 `.claude/`。
+> 以下架構圖以 Claude Code 為主，VS Code 版本結構類似但路徑不同。
 
 ## 架構設計
 
@@ -45,7 +49,9 @@
 │  ├─ build_context(topic)   → 從多筆記組裝上下文             │
 │  └─ recent_activity()      → 查看最近變更                   │
 │                                                               │
-│  底層儲存: .github/memory-kb/ (Markdown 檔案)               │
+│  底層儲存:                                                   │
+│    VS Code: .github/memory-kb/ (Markdown 檔案)              │
+│    Claude Code: .claude/memory-kb/ (Markdown 檔案)           │
 │  索引: 語意向量 + [[wiki-link]] 知識圖譜                     │
 └──────────────────────────────────────────────────────────────┘
 
@@ -272,6 +278,30 @@ SubagentStop Hook
 
 ---
 
+## Claude Code 版本升級重點
+
+相比 VS Code Copilot 版本，Claude Code 版本有以下升級：
+
+### 1. Per-agent Stop Hook（exit 2 阻擋）
+VS Code 版本的 SubagentStop 只能「警告」（`continue: true`），Claude Code 版本升級為 per-agent Stop hook，直接在 agent frontmatter 定義，未寫記憶時 **exit 2 阻擋**。
+
+### 2. PreToolUse 驗證 write_note tags
+新增 `validate-write-note.sh`，在 write_note 執行前驗證 tags 格式是否包含 `app:` 和 `agent:`，不合格直接阻擋。
+
+### 3. UserPromptSubmit 關鍵字偵測
+升級為在使用者 prompt 送到 Claude 之前偵測「筆記」「記錄進度」等關鍵字，自動注入儲存上下文。
+
+### 4. 主題記憶系統
+新增 `topics/` 資料夾和 `_index.json` 索引，支援：
+- SessionStart 顯示進行中主題選單
+- 關鍵字觸發儲存
+- 主題封存（不自動載入，節省 token）
+- PreCompact 壓縮前儲存提醒
+
+---
+
 ## 模型名稱注意事項
 
-`model` 欄位的值取決於你的 Copilot 方案支持的模型。請在 VS Code 的模型選擇器中查看可用模型名稱，並相應修改各 `.agent.md` 的 `model` 欄位。如果指定的模型不可用，VS Code 會按陣列順序 fallback 到下一個。
+**VS Code Copilot**：`model` 欄位的值取決於你的 Copilot 方案支持的模型。請在 VS Code 的模型選擇器中查看可用模型名稱。
+
+**Claude Code**：使用 `opus`、`sonnet`、`haiku` 等簡寫即可。
