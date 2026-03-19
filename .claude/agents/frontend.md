@@ -11,8 +11,10 @@ allowed_tools:
   - "mcp__basic-memory__*"
 hooks:
   Stop:
-    - type: command
-      command: "bash .claude/hooks/subagent-memory-check.sh frontend"
+    - matcher: ""
+      hooks:
+        - type: command
+          command: "bash .claude/hooks/subagent-memory-check.sh frontend"
 ---
 
 # Frontend Engineer Agent

@@ -11,8 +11,10 @@ allowed_tools:
   - "mcp__basic-memory__*"
 hooks:
   Stop:
-    - type: command
-      command: "bash .claude/hooks/subagent-memory-check.sh database"
+    - matcher: ""
+      hooks:
+        - type: command
+          command: "bash .claude/hooks/subagent-memory-check.sh database"
 ---
 
 # Database Expert Agent

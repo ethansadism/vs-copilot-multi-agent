@@ -1,42 +1,81 @@
 {
-  "hooks": [
-    {
-      "event": "SessionStart",
-      "type": "command",
-      "command": "bash .claude/hooks/session-init.sh"
-    },
-    {
-      "event": "UserPromptSubmit",
-      "type": "command",
-      "command": "bash .claude/hooks/user-prompt-submit.sh"
-    },
-    {
-      "event": "SubagentStart",
-      "type": "command",
-      "command": "bash .claude/hooks/subagent-start.sh"
-    },
-    {
-      "event": "PostToolUse",
-      "type": "command",
-      "command": "bash .claude/hooks/post-tool-use.sh"
-    },
-    {
-      "event": "PreCompact",
-      "type": "command",
-      "command": "bash .claude/hooks/pre-compact.sh"
-    },
-    {
-      "event": "Stop",
-      "type": "command",
-      "command": "bash .claude/hooks/stop.sh"
-    },
-    {
-      "event": "PreToolUse",
-      "type": "command",
-      "command": "bash .claude/hooks/validate-write-note.sh",
-      "matcher": {
-        "toolNames": ["mcp__basic-memory__write_note"]
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-init.sh"
+          }
+        ]
       }
-    }
-  ]
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/user-prompt-submit.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/subagent-start.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-tool-use.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-compact.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__basic-memory__write_note",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-write-note.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
