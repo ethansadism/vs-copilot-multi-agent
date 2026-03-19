@@ -26,20 +26,21 @@ else
 fi
 
 # 3. 註冊 Basic Memory 專案
-PROJECT_NAME="multi-agent-system"
-KB_PATH=".github/memory-kb"
+# 用資料夾名稱作為專案名，避免跨專案衝突
+PROJECT_NAME="$(basename "$(pwd)")"
+KB_PATH=".claude/memory-kb"
 
 echo ""
-echo "📁 註冊 Basic Memory 專案..."
+echo "📁 註冊 Basic Memory 專案 '$PROJECT_NAME'..."
 # basic-memory project add 如果已存在會報錯，忽略
 uvx basic-memory project add "$PROJECT_NAME" "$KB_PATH" 2>/dev/null || true
 echo "✅ 專案 '$PROJECT_NAME' → $KB_PATH"
 
-# 4. 同步索引
+# 4. 重建索引
 echo ""
-echo "🔄 同步知識庫索引..."
-uvx basic-memory sync --project "$PROJECT_NAME"
-echo "✅ 索引同步完成"
+echo "🔄 重建知識庫索引..."
+uvx basic-memory reindex --project "$PROJECT_NAME"
+echo "✅ 索引重建完成"
 
 # 5. 檢查 uvx 路徑（VS Code 可能找不到 PATH 裡的 uvx）
 UVX_PATH=$(which uvx 2>/dev/null || echo "")
@@ -75,11 +76,13 @@ echo ""
 echo "=== 安裝完成 ==="
 echo ""
 echo "下一步："
+echo ""
+echo "  【Claude Code】"
+echo "  1. 在此目錄執行 claude"
+echo "  2. 開始對話！（CLAUDE.md + hooks 會自動載入）"
+echo ""
+echo "  【VS Code Copilot】"
 echo "  1. 用 VS Code 開啟此專案"
 echo "  2. 開啟 Copilot Chat（Ctrl+L / Cmd+L）"
 echo "  3. 在 Agent 下拉菜單選擇 'Project Manager'"
 echo "  4. 開始對話！"
-echo ""
-echo "運行 Demo App："
-echo "  source .venv/bin/activate"
-echo "  cd mta_demo4 && pip install -r requirements.txt && python app.py"
