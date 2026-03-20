@@ -8,6 +8,9 @@ REPO_URL="https://github.com/ethansadism/vs-copilot-multi-agent.git"
 MARKER_START="# >>> multi-agent-system (auto-inserted, do not edit this block) <<<"
 MARKER_END="# <<< multi-agent-system end >>>"
 
+# 用當前目錄名稱作為 basic-memory 專案名（與 setup.sh 一致）
+PROJECT_NAME="$(basename "$(pwd)")"
+
 echo "=== Multi-Agent System Bootstrap ==="
 echo ""
 
@@ -194,6 +197,28 @@ with open(".vscode/mcp.json", "w") as f:
 print("✅ .vscode/mcp.json 已合併（保留現有 servers）")
 PYEOF
 fi
+# 替換 basic-memory project name（來源是 multi-agent-system，要換成目前專案名）
+python3 - <<PYEOF
+import json, os
+
+project_name = os.path.basename(os.getcwd())
+for path in [".vscode/mcp.json"]:
+    if not os.path.exists(path):
+        continue
+    with open(path) as f:
+        data = json.load(f)
+    for server in data.get("servers", {}).values():
+        args = server.get("args", [])
+        if "--project" in args:
+            idx = args.index("--project")
+            if idx + 1 < len(args) and args[idx + 1] == "multi-agent-system":
+                args[idx + 1] = project_name
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+print(f"✅ .vscode/mcp.json --project 已設為 '{project_name}'")
+PYEOF
 
 # ── 7. .mcp.json（Claude Code MCP 設定）──────────────────────────────
 echo ""
@@ -220,6 +245,28 @@ with open(".mcp.json", "w") as f:
 print("✅ .mcp.json 已合併")
 PYEOF
 fi
+# 替換 basic-memory project name
+python3 - <<PYEOF
+import json, os
+
+project_name = os.path.basename(os.getcwd())
+for path in [".mcp.json"]:
+    if not os.path.exists(path):
+        continue
+    with open(path) as f:
+        data = json.load(f)
+    for server in data.get("mcpServers", {}).values():
+        args = server.get("args", [])
+        if "--project" in args:
+            idx = args.index("--project")
+            if idx + 1 < len(args) and args[idx + 1] == "multi-agent-system":
+                args[idx + 1] = project_name
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+print(f"✅ .mcp.json --project 已設為 '{project_name}'")
+PYEOF
 
 # ── 8. memory-kb 目錄結構 ─────────────────────────────────────────────
 echo ""
