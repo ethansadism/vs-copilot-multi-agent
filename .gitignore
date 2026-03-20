@@ -59,3 +59,4 @@ htmlcov/
 
 # Local overrides
 local_config.json
+.claude/logs
