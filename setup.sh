@@ -28,19 +28,38 @@ fi
 # 3. 註冊 Basic Memory 專案
 # 用資料夾名稱作為專案名，避免跨專案衝突
 PROJECT_NAME="$(basename "$(pwd)")"
-KB_PATH="memory-kb"
+KB_PATH="$(pwd)/memory-kb"
 
 echo ""
 echo "📁 註冊 Basic Memory 專案 '$PROJECT_NAME'..."
-# basic-memory project add 如果已存在會報錯，忽略
-uvx basic-memory project add "$PROJECT_NAME" "$KB_PATH" 2>/dev/null || true
-echo "✅ 專案 '$PROJECT_NAME' → $KB_PATH"
 
-# 4. 重建索引
-echo ""
-echo "🔄 重建知識庫索引..."
-uvx basic-memory reindex --project "$PROJECT_NAME"
-echo "✅ 索引重建完成"
+ADD_OUTPUT=$(uvx basic-memory project add "$PROJECT_NAME" "$KB_PATH" 2>&1)
+ADD_EXIT=$?
+
+if [ $ADD_EXIT -eq 0 ]; then
+    echo "✅ 專案 '$PROJECT_NAME' → memory-kb"
+    NEED_REINDEX=true
+elif echo "$ADD_OUTPUT" | grep -q "already exists with different path"; then
+    echo "⚠️  偵測到路徑不一致，更新專案路徑..."
+    uvx basic-memory project remove "$PROJECT_NAME" 2>/dev/null || true
+    uvx basic-memory project add "$PROJECT_NAME" "$KB_PATH"
+    echo "✅ 專案路徑已更新 → memory-kb"
+    NEED_REINDEX=true
+elif echo "$ADD_OUTPUT" | grep -q "already exists"; then
+    echo "✅ 專案 '$PROJECT_NAME' 已存在，路徑正確"
+    NEED_REINDEX=false
+else
+    echo "⚠️  project add 輸出：$ADD_OUTPUT"
+    NEED_REINDEX=false
+fi
+
+# 4. 重建索引（僅首次或路徑更新時）
+if [ "$NEED_REINDEX" = true ]; then
+    echo ""
+    echo "🔄 重建知識庫索引..."
+    uvx basic-memory reindex --project "$PROJECT_NAME"
+    echo "✅ 索引重建完成"
+fi
 
 # 5. 檢查 uvx 路徑（VS Code 可能找不到 PATH 裡的 uvx）
 UVX_PATH=$(which uvx 2>/dev/null || echo "")
