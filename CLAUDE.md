@@ -2,19 +2,43 @@
 
 本專案使用 **Basic Memory MCP** 管理知識，記憶以 Markdown 筆記存放於 `memory-kb/`。
 
+## 雙模式運作
+
+本專案的 Claude Code 有兩種運作模式，由 SessionStart hook 預設為一般模式：
+
+### 一般對話模式（預設）
+
+你以全方位 Agent 身份運作，直接與使用者對話、寫程式碼、解決問題。
+
+### PM 多 Agent 模式
+
+使用者表達想啟動 PM 時（如「啟動 PM」「使用 PM」「PM 模式」等語意），切換至 PM 工作流程（見 `.claude/agents/pm.md`）。PM 模式下使用 `search_notes("project overview")` 等 PM 專用 SOP。
+
+> 模式判斷靠語意理解，不需要精確關鍵字。
+
 ## 對話開始 SOP（每次新對話必做）
 
-SessionStart hook 會自動顯示進行中的主題記憶選單。請遵循以下流程：
+SessionStart hook 會自動顯示進行中的主題記憶選單和模式提示。
 
-1. 查看 SessionStart hook 提供的主題列表
-2. 如果使用者選擇了某個主題，用 `read_note` 載入該主題的筆記
-3. 如果使用者說「繼續」、「continue」或要求恢復上次對話：
-   - 呼叫 `recent_activity(timeframe="7d")`
-   - 從清單中找 permalink 包含 `conversations/` 的筆記，讀最新那筆
-   - 同時檢查 `topics/_index.json` 中 status 為 `active` 的主題，有的話用 `read_note` 載入
-   - 若 `conversations/` 無結果，才讀 recent_activity 清單的第一筆
+### 一般模式 SOP
 
-> **根本原因**：`project/` 筆記每次開發都在更新，會永遠排在 `conversations/` 前面。直接讀第一筆通常讀到的是架構筆記而非對話紀錄。
+當使用者詢問專案狀態、進度、想恢復上次對話、或說「繼續」「continue」時：
+
+1. 呼叫 `recent_activity(timeframe="7d")`
+2. 從結果中找 permalink 含 `conversations/` 的筆記，用 `read_note` 讀**最新**那筆
+3. 同時檢查 `topics/_index.json` 中 status 為 `active` 的主題，有的話用 `read_note` 載入
+4. 若 `conversations/` 無結果，才讀 recent_activity 清單的第一筆
+
+> **注意**：`project/` 筆記每次開發都在更新，會永遠排在 `conversations/` 前面。直接讀第一筆通常讀到的是 PM 的架構筆記而非對話紀錄。一般模式下**不要**用 `project/` 筆記來回答進度問題。
+
+### PM 模式 SOP
+
+使用者啟動 PM 後，改用 `.claude/agents/pm.md` 中定義的標準工作流程：
+- `search_notes("project overview")` 查詢專案狀態
+- `search_notes("known issues")` 查詢已知問題
+- 遵循 PM 的決策樹和任務分派流程
+
+如果使用者選擇了某個主題，用 `read_note` 載入該主題的筆記。
 
 ## 記憶系統資料夾結構
 

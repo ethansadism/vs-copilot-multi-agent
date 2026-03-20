@@ -1,4 +1,4 @@
-# Multi-Agent Collaboration System (v0.07)
+# Multi-Agent Collaboration System (v0.08)
 
 基於 **VS Code Copilot** 和 **Claude Code** 的多 Agent 協作系統。PM 協調、專家執行、Basic Memory 知識圖譜持久化。
 
@@ -43,31 +43,38 @@ bash setup.sh
 **Claude Code：**
 1. 在專案目錄執行 `claude`
 2. SessionStart hook 自動顯示主題記憶選單
-3. 直接對話或選擇 PM agent 開始工作
+3. 預設為**一般對話模式**——直接與 Claude 對話、寫程式、解決問題
+4. 需要多 Agent 協作時，說「啟動 PM」「PM 模式」等切換至 PM 模式
 
 ---
 
 ## 使用情境範例（Claude Code）
 
-### 情境一：全新對話，喚醒記憶
+### 雙模式概念
 
-SessionStart hook 會自動顯示進行中主題。你不需要做任何事，直接說明需求即可。若要手動載入上次狀態：
+Claude Code 預設為**一般對話模式**，你可以直接與 Claude 對話。需要多 Agent 協作時，用自然語言切換至 PM 模式（不需要精確關鍵字）：
+
+| 模式 | 啟動方式 | 用途 |
+|------|---------|------|
+| **一般對話**（預設） | 直接對話 | 寫程式、Debug、問問題、一般開發 |
+| **PM 多 Agent** | 「啟動 PM」「PM 模式」「用 PM」等 | 多領域協作（爬蟲+DB+前端） |
+
+### 情境一：全新對話，詢問進度
+
+SessionStart hook 會自動顯示進行中主題。詢問專案狀態或想恢復上次對話時：
 
 ```
+你：進度到哪了？
 你：繼續
+你：上次做到哪？
 ```
 
 Claude 會搜尋 `conversations/` 最新對話筆記 + 載入 active 主題，恢復上次狀態。
 
-### 情境二：換電腦後出現 Session 錯誤
+> **注意**：Claude 會從 `conversations/`（對話紀錄）而非 `project/`（PM 架構筆記）讀取進度。這是刻意設計——一般對話模式關心的是「上次我們聊到哪」，不是「PM 的專案總覽」。
 
-```
-Error: No conversation found with session ID: xxxx-xxxx
-```
 
-這是正常現象。本地 session 快取不存在時會出現。直接說「繼續」讓 Claude 從 Basic Memory 重建記憶，或直接開始新對話。
-
-### 情境三：儲存目前對話為主題記憶
+### 情境二：儲存目前對話為主題記憶
 
 說任何包含以下關鍵字的句子會觸發儲存流程：
 
@@ -79,7 +86,7 @@ Error: No conversation found with session ID: xxxx-xxxx
 
 Claude 會詢問主題名稱（選擇現有或建立新主題），然後寫入 `topics/{topic-name}/`。
 
-### 情境四：繼續某個主題
+### 情境三：繼續某個主題
 
 ```
 你：載入 claude-code-migration 主題
@@ -87,15 +94,16 @@ Claude 會詢問主題名稱（選擇現有或建立新主題），然後寫入 
 
 或在 SessionStart 顯示選單時直接輸入主題編號。
 
-### 情境五：讓 PM 協調多 agent 任務
+### 情境四：讓 PM 協調多 agent 任務
 
 ```
-你：用 PM agent，幫我建一個新的爬蟲 Dashboard 監控 Reddit 熱門文章
+你：啟動 PM，幫我建一個新的爬蟲 Dashboard 監控 Reddit 熱門文章
+你：PM 模式，新增美股即時監聽功能
 ```
 
 PM 會自動：1) 查詢記憶庫了解現有架構，2) 建立介面合約，3) 依序呼叫 Crawler / Database / Frontend agent。
 
-### 情境六：封存已完成的主題
+### 情境五：封存已完成的主題
 
 ```
 你：封存 claude-code-migration
@@ -167,7 +175,7 @@ PM 會自動：1) 查詢記憶庫了解現有架構，2) 建立介面合約，3)
 
 | Hook Event | 腳本 | 機制 |
 |------------|------|------|
-| **SessionStart** | session-init.sh | 顯示主題選單 + 記憶提示 |
+| **SessionStart** | session-init.sh | 顯示主題選單 + 雙模式 SOP 提示 |
 | **UserPromptSubmit** | user-prompt-submit.sh | 關鍵字偵測「筆記」→ 注入儲存提示 |
 | **SubagentStart** | subagent-start.sh | 注入 folder 路徑 + 筆記列表 + 時間戳 |
 | **Per-agent Stop** | subagent-memory-check.sh | **exit 2 阻擋**未寫記憶的 subagent |
@@ -218,5 +226,5 @@ PM 會自動：1) 查詢記憶庫了解現有架構，2) 建立介面合約，3)
 
 ---
 
-**版本**: 0.07
+**版本**: 0.08
 **上次更新**: 2026-03-20
