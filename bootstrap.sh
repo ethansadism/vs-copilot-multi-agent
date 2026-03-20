@@ -158,11 +158,17 @@ with open("$COPILOT_SRC") as f:
 marker_start = "$MARKER_START"
 marker_end   = "$MARKER_END"
 
+header = (
+    "> **[Multi-Agent Memory System — 自動安裝]**\n"
+    "> 以下規則由 `bootstrap.sh` 注入，是 basic-memory 記憶系統的核心運作規則。\n"
+    "> **請勿刪除此區塊**。PM 多 Agent 模式為可選功能，一般對話直接使用即可。\n"
+)
+block = f"{marker_start}\n{header}\n{new_rules}\n{marker_end}"
+
 pattern = re.compile(
     re.escape(marker_start) + r".*?" + re.escape(marker_end),
     re.DOTALL
 )
-block = f"{marker_start}\n{new_rules}\n{marker_end}"
 content = pattern.sub(block, content)
 
 with open("$COPILOT_DST", "w") as f:
@@ -173,6 +179,10 @@ else
     {
         echo ""
         echo "$MARKER_START"
+        echo "> **[Multi-Agent Memory System — 自動安裝]**"
+        echo "> 以下規則由 \`bootstrap.sh\` 注入，是 basic-memory 記憶系統的核心運作規則。"
+        echo "> **請勿刪除此區塊**。PM 多 Agent 模式為可選功能，一般對話直接使用即可。"
+        echo ""
         cat "$COPILOT_SRC"
         echo "$MARKER_END"
     } >> "$COPILOT_DST"
