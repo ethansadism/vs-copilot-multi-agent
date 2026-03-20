@@ -130,7 +130,7 @@ tags: ["app:mta_demo3", "agent:crawler", "experience"]
 | Tag | 格式 | 說明 |
 |-----|------|------|
 | app | `app:mta_demo3` | 與特定 app 關聯；跨 app 通用筆記用 `app:general` |
-| agent | `agent:crawler` / `agent:database` / `agent:frontend` / `agent:pm` | 筆記撰寫者 |
+| agent | `agent:claude` / `agent:pm` / `agent:crawler` / `agent:database` / `agent:frontend` | 筆記撰寫者（一般對話用 `agent:claude`，PM 及 subagent 用對應角色） |
 | type | `bug` / `experience` / `reference` / `session` / `contract` / `topic` | 筆記性質 |
 
 > **PreToolUse hook 會自動驗證**：write_note 呼叫如果缺少 `app:` 或 `agent:` tag，會被阻擋（exit 2）。

@@ -47,6 +47,11 @@ stock_data.db
 *.db
 .env
 
+# memory-kb：筆記內容不進 git（各人有自己的記憶庫）
+memory-kb/**/*.md
+memory-kb/**/*.json
+!memory-kb/**/.gitkeep
+
 # Node (if using frontend tools)
 node_modules/
 npm-debug.log

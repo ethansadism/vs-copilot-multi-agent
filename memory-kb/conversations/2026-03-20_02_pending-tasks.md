@@ -4,7 +4,7 @@ type: note
 permalink: multi-agent-system/conversations/2026-03-20-02-pending-tasks
 tags:
 - app:general
-- agent:pm
+- agent:claude
 - type:session
 ---
 
@@ -28,6 +28,6 @@ tags:
 ## Observations
 
 - app :: general
-- agent :: pm
+- agent :: claude
 - type :: session
 - date :: 2026-03-20

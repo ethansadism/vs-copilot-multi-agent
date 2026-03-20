@@ -4,7 +4,7 @@ type: note
 permalink: multi-agent-system/conversations/2026-03-18-03-contracts-folder-architecture
 tags:
 - app:general
-- agent:pm
+- agent:claude
 - session
 ---
 
@@ -48,7 +48,7 @@ PM 的介面合約（跨 agent 共用的 API endpoint / DB schema / WebSocket �
 ## Observations
 
 - app :: general
-- agent :: pm
+- agent :: claude
 - type :: session
 - decision :: contracts/ 獨立資料夾取代 project/ 存放合約
 - visibility :: SubagentStart hook 自動列出 contracts/ 筆記給所有 subagent

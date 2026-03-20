@@ -4,7 +4,7 @@ type: note
 permalink: multi-agent-system/conversations/2026-03-20-01-shared-memory-kb-migration
 tags:
 - app:general
-- agent:pm
+- agent:claude
 - type:session
 ---
 
@@ -49,6 +49,6 @@ uvx basic-memory project add "multi-agent-system" "C:/code/projects/multi_agent_
 ## Observations
 
 - app :: general
-- agent :: pm
+- agent :: claude
 - type :: session
 - date :: 2026-03-20

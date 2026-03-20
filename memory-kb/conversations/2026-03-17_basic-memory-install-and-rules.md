@@ -4,7 +4,7 @@ type: note
 permalink: multi-agent-system/conversations/2026-03-17-basic-memory-install-and-rules
 tags:
 - session
-- agent:pm
+- agent:claude
 - '2026-03-17'
 ---
 
@@ -14,7 +14,7 @@ tags:
 
 - session_date :: 2026-03-17
 - version :: v0.04
-- agent :: pm
+- agent :: claude
 - machine :: macOS (Dennis 換機後首次)
 
 ## 完成的事
