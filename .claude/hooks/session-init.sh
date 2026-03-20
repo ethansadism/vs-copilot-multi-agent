@@ -15,7 +15,6 @@ try:
     memory_kb = "memory-kb"
     topics_dir = os.path.join(memory_kb, "topics")
     index_file = os.path.join(topics_dir, "_index.json")
-    overview_file = os.path.join(memory_kb, "project", "project-overview.md")
 
     sections = []
 
@@ -39,14 +38,14 @@ try:
     sections.append("⚠️ **不要**直接讀 `project/` 筆記來回答進度問題——那是 PM 模式的資料。")
     sections.append("")
 
-    # 3. 檢查 Basic Memory 是否就緒
-    if os.path.exists(overview_file):
+    # 3. 檢查 Basic Memory 是否就緒（只看目錄，不依賴 PM 產生的 project-overview）
+    if os.path.isdir(memory_kb):
         sections.append("### Basic Memory 已就緒")
         sections.append("")
         sections.append("記憶知識庫位於 `memory-kb/`，透過 MCP 工具操作。")
         sections.append("")
     else:
-        sections.append("⚠️ 找不到 project-overview.md，請確認 Basic Memory 已設定")
+        sections.append("⚠️ 找不到 memory-kb/ 目錄，請先執行 bootstrap.sh 或 setup.sh")
         sections.append("")
 
     # 4. 顯示主題記憶選單

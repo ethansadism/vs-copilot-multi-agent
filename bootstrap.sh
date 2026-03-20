@@ -94,7 +94,13 @@ with open("$SRC/CLAUDE.md") as f:
 
 marker_start = "$MARKER_START"
 marker_end   = "$MARKER_END"
-block = f"\n{marker_start}\n{new_rules}\n{marker_end}\n"
+
+header = (
+    "> **[Multi-Agent Memory System — 自動安裝]**\n"
+    "> 以下規則由 `bootstrap.sh` 注入，是 basic-memory 記憶系統的核心運作規則。\n"
+    "> **請勿刪除此區塊**。PM 多 Agent 模式為可選功能，一般對話直接使用即可。\n"
+)
+block = f"\n{marker_start}\n{header}\n{new_rules}\n{marker_end}\n"
 
 # 替換現有區段
 pattern = re.compile(
@@ -113,6 +119,10 @@ else
     {
         echo ""
         echo "$MARKER_START"
+        echo "> **[Multi-Agent Memory System — 自動安裝]**"
+        echo "> 以下規則由 \`bootstrap.sh\` 注入，是 basic-memory 記憶系統的核心運作規則。"
+        echo "> **請勿刪除此區塊**。PM 多 Agent 模式為可選功能，一般對話直接使用即可。"
+        echo ""
         cat "$SRC/CLAUDE.md"
         echo "$MARKER_END"
     } >> CLAUDE.md
@@ -278,7 +288,55 @@ for dir in memory-kb/conversations memory-kb/crawler memory-kb/database \
 done
 echo "✅ memory-kb/ 結構已建立（內容不進 git）"
 
-# ── 9. 執行 setup.sh（basic-memory 安裝與註冊）────────────────────────
+# ── 9. 寫入 kickoff note（讓第一個 agent 知道這裡發生了什麼）─────────────
+echo ""
+echo "📝 寫入 bootstrap kickoff note..."
+BOOTSTRAP_DATE=$(date +%Y-%m-%d)
+cat > "memory-kb/project/${PROJECT_NAME}_001_bootstrap-summary.md" <<NOTE
+---
+title: ${PROJECT_NAME}_001_bootstrap-summary
+type: note
+tags:
+- app:${PROJECT_NAME}
+- agent:claude
+- type:session
+---
+
+# Bootstrap Summary — ${PROJECT_NAME}
+
+此專案於 ${BOOTSTRAP_DATE} 透過 bootstrap.sh 安裝了 Multi-Agent Memory System。
+
+## 已安裝的元件
+
+- \`.claude/agents/\` — Agent 定義（PM / Crawler / Database / Frontend）
+- \`.claude/hooks/\` — SessionStart / UserPromptSubmit hooks
+- \`.claude/settings.json\` — Hook 設定（已與現有設定合併）
+- \`CLAUDE.md\` — multi-agent 記憶規則（附加區塊，請勿刪除）
+- \`.github/agents/\` + \`.github/hooks/\` — VS Code Copilot 支援
+- \`.vscode/mcp.json\` + \`.mcp.json\` — basic-memory MCP 設定
+- \`memory-kb/\` — 記憶知識庫（此筆記是第一筆）
+
+## 使用方式
+
+- **一般對話（預設）**：直接與 Claude Code 或 VS Code Copilot 對話即可
+- **PM 多 Agent 模式**：說「啟動 PM」切換，PM 會協調多個 subagent 分工
+
+## 記憶系統
+
+- 知識存放於 \`memory-kb/\`，透過 basic-memory MCP 讀寫
+- \`memory-kb/\` 內容不進 git（各人擁有自己的記憶庫）
+- 說「筆記」或「記一下」可儲存當前對話重點
+
+## Observations
+
+- app :: ${PROJECT_NAME}
+- agent :: claude
+- type :: session
+- bootstrapped :: ${BOOTSTRAP_DATE}
+NOTE
+echo "✅ kickoff note 已寫入 memory-kb/project/"
+
+# ── 10. 執行 setup.sh（basic-memory 安裝與註冊）───────────────────────
 echo ""
 echo "🚀 執行 setup.sh 安裝 basic-memory..."
 bash "$SRC/setup.sh"
