@@ -1,4 +1,0 @@
-flask>=3.0
-flask-socketio>=5.3
-apscheduler>=3.10
-requests>=2.31

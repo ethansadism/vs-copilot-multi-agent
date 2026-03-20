@@ -20,17 +20,31 @@
 
 ### 安裝
 
+**方式一：注入現有專案（推薦）**
+
+在你的專案目錄下執行：
+
 ```bash
-git clone https://github.com/ethansadism/vs-copilot-multi-agent.git
-cd vs-copilot-multi-agent
+bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
+```
+
+`bootstrap.sh` 會：
+- 複製 `agents/`、`hooks/` 到 `.claude/` 和 `.github/`
+- **合併**（不覆蓋）`settings.json`、`.vscode/mcp.json`
+- **附加**（不覆蓋）`CLAUDE.md`、`copilot-instructions.md`
+- 建立空的 `memory-kb/` 結構
+
+> 現有專案的規則和設定不會被覆蓋。
+
+**方式二：全新專案**
+
+```bash
+git clone https://github.com/ethansadism/vs-copilot-multi-agent.git my-project
+cd my-project
 bash setup.sh
 ```
 
-`setup.sh` 會自動：
-1. 安裝 [uv](https://github.com/astral-sh/uv)（如未安裝）
-2. 安裝 [basic-memory](https://github.com/basicmachines-co/basic-memory) MCP 伺服器
-3. 註冊知識庫專案並同步索引
-4. 建立 Python venv
+> Demo app 範例（mta_demo 系列）在 [`examples` 分支](https://github.com/ethansadism/vs-copilot-multi-agent/tree/examples)。
 
 ### 使用
 
