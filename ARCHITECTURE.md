@@ -50,13 +50,24 @@
 │  └─ recent_activity()      → 查看最近變更                   │
 │                                                               │
 │  底層儲存:                                                   │
-│    VS Code: .github/memory-kb/ (Markdown 檔案)              │
-│    Claude Code: .claude/memory-kb/ (Markdown 檔案)           │
+│    memory-kb/ (Markdown 檔案，兩平台共用)              │
 │  索引: 語意向量 + [[wiki-link]] 知識圖譜                     │
 └──────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
 │                   文件系統層（持久化）                        │
+│                                                               │
+│  memory-kb/               # Basic Memory 知識庫（兩平台共用）│
+│  ├── contracts/           # 跨 agent 介面合約                │
+│  ├── conversations/       # 重要會話紀錄與架構決策            │
+│  ├── project/             # PM 管理的全局筆記                │
+│  │   ├── project-overview.md                                 │
+│  │   ├── known-issues.md                                     │
+│  │   └── memory-system-gaps.md                               │
+│  ├── crawler/             # 爬蟲經驗                         │
+│  ├── database/            # 資料庫經驗                       │
+│  ├── frontend/            # 前端經驗                         │
+│  └── topics/              # 主題記憶                         │
 │                                                               │
 │  .github/                                                    │
 │  ├── agents/              # Agent 定義（VS Code .agent.md）  │
@@ -66,15 +77,6 @@
 │  │   └── frontend.agent.md # 前端工程師                      │
 │  │                                                            │
 │  ├── copilot-instructions.md  # 全域規則與 SOP（自動載入）    │
-│  │                                                            │
-│  ├── memory-kb/           # Basic Memory 知識庫（Markdown）  ││   │   ├── contracts/       # 跨 agent 介面合約（PM 寫入，所有 agent 可讀）││  │   ├── conversations/   # 重要會話紀錄與架構決策            │
-│  │   ├── project/         # PM 管理的全局筆記                │
-│  │   │   ├── project-overview.md                             │
-│  │   │   ├── known-issues.md                                 │
-│  │   │   └── memory-system-gaps.md                           │
-│  │   ├── crawler/         # 爬蟲經驗                         │
-│  │   ├── database/        # 資料庫經驗                       │
-│  │   └── frontend/        # 前端經驗                         │
 │  │                                                            │
 │  ├── hooks/               # 自動化腳本（7 個生命週期事件）   │
 │  │   ├── hooks.json       # Hook 配置                        │
@@ -179,7 +181,7 @@ Agent 呼叫 write_note("TWSE-SSL-fallback", content, folder="crawler")
         ↓
   Basic Memory MCP
   ┌─────────────────────────────────────┐
-  │  寫入 .github/memory-kb/crawler/   │
+  │  寫入 memory-kb/crawler/   │
   │  自動提取 Observations (key::value) │
   │  自動建立 [[wiki-link]] Relations  │
   │  更新語意索引                       │
@@ -193,7 +195,7 @@ Level 0: 全局規範
   └─ .github/copilot-instructions.md（如果存在）
 
 Level 1: 專案級記憶（Basic Memory project: multi-agent-system）
-  └─ .github/memory-kb/
+  └─ memory-kb/
      ├── project/    ← PM 管理：專案狀態、已知問題、架構決策
      ├── crawler/    ← Crawler Expert：爬蟲經驗、反偵測技巧、API 特性
      ├── database/   ← Database Expert：模型設計、遷移經驗、效能調校

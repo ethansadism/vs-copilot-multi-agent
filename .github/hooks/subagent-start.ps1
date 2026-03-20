@@ -10,7 +10,7 @@ try {
     $input = $input_json | ConvertFrom-Json
     $agent_type = $input.agent_type
     $agent_id = $input.agent_id
-    $memory_kb = ".github/memory-kb"
+    $memory_kb = "memory-kb"
     $log_dir = ".github/logs"
 
     # === 流程日誌 ===

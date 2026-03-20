@@ -1,7 +1,19 @@
+---
+title: 002_settings-json-format-bug
+type: note
+permalink: multi-agent-system/topics/claude-code-migration/002-settings-json-format-bug
+tags:
+- app:general
+- agent:pm
+- type:topic
+---
+
 # settings.json hooks 格式錯誤事件
 
 ## Observations
 
+- app :: general
+- agent :: pm
 - bug_date :: 2026-03-20
 - severity :: 配置無法載入（Claude Code 完全跳過該 settings.json）
 - root_cause :: subagent 研究回傳錯誤格式，未交叉驗證直接採用
@@ -34,4 +46,4 @@ Claude Code 實際要求的是 record + matcher 結構：
 
 ## Relations
 
-- part_of [[Claude Code 移植完成紀錄]]
+- part_of [[001_migration-complete]]

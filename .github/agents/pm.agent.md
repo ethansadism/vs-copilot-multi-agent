@@ -17,7 +17,7 @@ disable-model-invocation: true
 
 ## 記憶系統：Basic Memory（MCP）
 
-本系統使用 **Basic Memory** 作為知識管理後端。所有記憶以 Markdown 筆記形式存放在 `.github/memory-kb/`，透過 MCP 工具存取。
+本系統使用 **Basic Memory** 作為知識管理後端。所有記憶以 Markdown 筆記形式存放在 `memory-kb/`，透過 MCP 工具存取。
 
 ### 可用的 MCP 工具
 
@@ -50,7 +50,7 @@ disable-model-invocation: true
 ### 資料夾結構
 
 ```
-.github/memory-kb/
+memory-kb/
 ├── contracts/         ← 跨 agent 介面合約（PM 寫入，所有 agent 可讀）
 ├── conversations/     ← 對話重要記錄（跨角色決策、架構討論、重要會話摘要）
 ├── project/           ← PM 管理的全局筆記

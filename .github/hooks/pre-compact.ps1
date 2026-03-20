@@ -8,7 +8,7 @@ param(
 
 try {
     $input = $input_json | ConvertFrom-Json
-    $memory_kb = ".github/memory-kb"
+    $memory_kb = "memory-kb"
     $log_dir = ".github/logs"
 
     # 寫入流程日誌
@@ -53,7 +53,7 @@ $obs_text
 ### 知識庫統計:
 $counts_text
 
-### 記憶位置: .github/memory-kb/
+### 記憶位置: memory-kb/
 使用 ``search_notes("關鍵字")`` 搜尋記憶，使用 ``write_note`` 更新記憶。
 "@
     }

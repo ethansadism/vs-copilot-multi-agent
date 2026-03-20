@@ -8,12 +8,13 @@ import sys, json, os, datetime
 try:
     input_str = sys.stdin.read()
     if not input_str:
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     data = json.loads(input_str)
     agent_name = data.get("agent_name", "unknown")
     agent_id = data.get("agent_id", "unknown")
-    memory_kb = ".claude/memory-kb"
+    memory_kb = "memory-kb"
     log_dir = ".claude/logs"
 
     os.makedirs(log_dir, exist_ok=True)
@@ -90,4 +91,4 @@ search_notes("關鍵字", tags=["agent:{agent_folder}"])
 
 except Exception as e:
     print(json.dumps({"continue": True, "systemMessage": f"SubagentStart Hook Error: {str(e)}"}))
-'
+' || echo '{"continue": true}'

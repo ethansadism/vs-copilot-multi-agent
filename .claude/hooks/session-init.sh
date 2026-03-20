@@ -8,10 +8,11 @@ import sys, json, os
 try:
     input_str = sys.stdin.read()
     if not input_str:
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     data = json.loads(input_str)
-    memory_kb = ".claude/memory-kb"
+    memory_kb = "memory-kb"
     topics_dir = os.path.join(memory_kb, "topics")
     index_file = os.path.join(topics_dir, "_index.json")
     overview_file = os.path.join(memory_kb, "project", "project-overview.md")
@@ -22,7 +23,7 @@ try:
     if os.path.exists(overview_file):
         sections.append("## Basic Memory 已就緒")
         sections.append("")
-        sections.append("記憶知識庫位於 `.claude/memory-kb/`，請使用 MCP 工具操作：")
+        sections.append("記憶知識庫位於 `memory-kb/`，請使用 MCP 工具操作：")
         sections.append("- `search_notes(\"project overview\")` 查詢專案狀態")
         sections.append("- `search_notes(\"known issues\")` 查詢已知問題")
         sections.append("")
@@ -70,4 +71,4 @@ try:
 
 except Exception as e:
     print(json.dumps({"continue": True, "systemMessage": f"SessionStart Hook Error: {str(e)}"}))
-'
+' || echo '{"continue": true}'

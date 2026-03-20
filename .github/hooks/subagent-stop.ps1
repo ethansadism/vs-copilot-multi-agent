@@ -11,7 +11,7 @@ try {
     $agent_type = $input.agent_type
     $agent_id = $input.agent_id
     $session_id = $input.sessionId
-    $memory_kb = ".github/memory-kb"
+    $memory_kb = "memory-kb"
     $reports_dir = ".github/reports"
     $log_dir = ".github/logs"
 

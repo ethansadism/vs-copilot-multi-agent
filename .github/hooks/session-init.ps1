@@ -9,7 +9,7 @@ param(
 try {
     $input = $input_json | ConvertFrom-Json
     $session_id = $input.sessionId
-    $memory_kb = ".github/memory-kb"
+    $memory_kb = "memory-kb"
     $log_dir = ".github/logs"
 
     # === 流程日誌 ===

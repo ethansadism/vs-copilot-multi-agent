@@ -1,6 +1,6 @@
 # Claude Code 全域規則
 
-本專案使用 **Basic Memory MCP** 管理知識，記憶以 Markdown 筆記存放於 `.claude/memory-kb/`。
+本專案使用 **Basic Memory MCP** 管理知識，記憶以 Markdown 筆記存放於 `memory-kb/`。
 
 ## 對話開始 SOP（每次新對話必做）
 
@@ -10,15 +10,16 @@ SessionStart hook 會自動顯示進行中的主題記憶選單。請遵循以�
 2. 如果使用者選擇了某個主題，用 `read_note` 載入該主題的筆記
 3. 如果使用者說「繼續」、「continue」或要求恢復上次對話：
    - 呼叫 `recent_activity(timeframe="7d")`
-   - **讀回傳清單的第一筆**（修改時間最新），這就是最新的對話狀態
-   - 不要自行判斷哪筆「看起來」更重要，第一筆就是答案
+   - 從清單中找 permalink 包含 `conversations/` 的筆記，讀最新那筆
+   - 同時檢查 `topics/_index.json` 中 status 為 `active` 的主題，有的話用 `read_note` 載入
+   - 若 `conversations/` 無結果，才讀 recent_activity 清單的第一筆
 
-> **錯誤示範**：recent_activity 回傳 5 筆，選了第 5 筆而非第 1 筆。
+> **根本原因**：`project/` 筆記每次開發都在更新，會永遠排在 `conversations/` 前面。直接讀第一筆通常讀到的是架構筆記而非對話紀錄。
 
 ## 記憶系統資料夾結構
 
 ```
-.claude/memory-kb/
+memory-kb/
 ├── contracts/       ← 跨 agent 介面合約（PM 寫入，所有 agent 可讀）
 ├── conversations/   ← 跨角色重要對話紀錄（架構決策、重要會話摘要）
 ├── project/         ← 全域專案狀態（PM 維護）

@@ -8,10 +8,11 @@ import sys, json, os, time
 try:
     input_str = sys.stdin.read()
     if not input_str:
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     data = json.loads(input_str)
-    overview_file = ".claude/memory-kb/project/project-overview.md"
+    overview_file = "memory-kb/project/project-overview.md"
 
     if os.path.exists(overview_file):
         mtime = os.path.getmtime(overview_file)
@@ -40,4 +41,4 @@ try:
 
 except Exception as e:
     print(json.dumps({"continue": True}))
-'
+' || echo '{"continue": true}'

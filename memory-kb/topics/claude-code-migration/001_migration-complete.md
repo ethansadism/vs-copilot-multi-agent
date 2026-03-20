@@ -1,9 +1,21 @@
+---
+title: 001_migration-complete
+type: note
+permalink: multi-agent-system/topics/claude-code-migration/001-migration-complete
+tags:
+- app:general
+- agent:pm
+- type:topic
+---
+
 # Claude Code 移植完成紀錄
 
 VS Code Copilot 多 agent 系統完整移植為 Claude Code 版本。
 
 ## Observations
 
+- app :: general
+- agent :: pm
 - migration_date :: 2026-03-20
 - source :: .github/ (VS Code Copilot)
 - target :: .claude/ (Claude Code)

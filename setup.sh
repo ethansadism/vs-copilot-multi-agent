@@ -28,7 +28,7 @@ fi
 # 3. 註冊 Basic Memory 專案
 # 用資料夾名稱作為專案名，避免跨專案衝突
 PROJECT_NAME="$(basename "$(pwd)")"
-KB_PATH=".claude/memory-kb"
+KB_PATH="memory-kb"
 
 echo ""
 echo "📁 註冊 Basic Memory 專案 '$PROJECT_NAME'..."

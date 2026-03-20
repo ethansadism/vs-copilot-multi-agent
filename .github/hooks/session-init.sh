@@ -12,7 +12,7 @@ try:
     
     data = json.loads(input_str)
     session_id = data.get("sessionId", "unknown")
-    memory_kb = ".github/memory-kb"
+    memory_kb = "memory-kb"
     overview_file = os.path.join(memory_kb, "project", "project-overview.md")
     
     if os.path.exists(overview_file):

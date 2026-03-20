@@ -8,7 +8,7 @@ param(
 
 try {
     $input = $input_json | ConvertFrom-Json
-    $overview_file = ".github/memory-kb/project/project-overview.md"
+    $overview_file = "memory-kb/project/project-overview.md"
     $log_dir = ".github/logs"
 
     # 寫入流程日誌

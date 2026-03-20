@@ -8,6 +8,7 @@ import sys, json, os, datetime
 try:
     input_str = sys.stdin.read()
     if not input_str:
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     data = json.loads(input_str)
@@ -38,4 +39,4 @@ try:
 
 except Exception as e:
     print(json.dumps({"continue": True}))
-'
+' || echo '{"continue": true}'

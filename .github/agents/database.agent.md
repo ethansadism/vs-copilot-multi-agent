@@ -12,7 +12,7 @@ model: "Claude Sonnet 4.6"
 
 ## 記憶系統：Basic Memory（MCP）
 
-你的記憶存放在 `.github/memory-kb/database/`，透過 MCP 工具操作：
+你的記憶存放在 `memory-kb/database/`，透過 MCP 工具操作：
 - `search_notes("關鍵字")` — 搜尋過去的模型設計和經驗
 - `read_note("permalink")` — 讀取特定筆記全文
 - `write_note` — 建立或更新筆記

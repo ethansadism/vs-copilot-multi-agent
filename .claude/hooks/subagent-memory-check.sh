@@ -12,7 +12,7 @@ python3 -c '
 import sys, json, os, datetime
 
 agent_folder = os.environ.get("AGENT_FOLDER", "unknown")
-memory_kb = ".claude/memory-kb"
+memory_kb = "memory-kb"
 log_dir = ".claude/logs"
 
 try:

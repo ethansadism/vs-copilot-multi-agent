@@ -8,10 +8,11 @@ import sys, json, os, datetime
 try:
     input_str = sys.stdin.read()
     if not input_str:
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     data = json.loads(input_str)
-    memory_kb = ".claude/memory-kb"
+    memory_kb = "memory-kb"
     log_dir = ".claude/logs"
     os.makedirs(log_dir, exist_ok=True)
 
@@ -49,7 +50,7 @@ try:
 ### 知識庫統計:
 {counts_text}
 
-### 記憶位置: .claude/memory-kb/
+### 記憶位置: memory-kb/
 使用 `search_notes("關鍵字")` 搜尋記憶，使用 `write_note` 更新記憶。""")
 
     # 2. 主題記憶提醒
@@ -71,4 +72,4 @@ try:
 
 except Exception as e:
     print(json.dumps({"continue": True}))
-'
+' || echo '{"continue": true}'

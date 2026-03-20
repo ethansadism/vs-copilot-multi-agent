@@ -1,6 +1,6 @@
 # Copilot 全域規則
 
-本專案使用 **Basic Memory MCP** 管理知識，記憶以 Markdown 筆記存放於 `.github/memory-kb/`。
+本專案使用 **Basic Memory MCP** 管理知識，記憶以 Markdown 筆記存放於 `memory-kb/`。
 
 ## 對話開始 SOP（每次新對話必做）
 
@@ -15,7 +15,7 @@
 ## 記憶系統資料夾結構
 
 ```
-.github/memory-kb/
+memory-kb/
 ├── contracts/   ← 跨 agent 介面合約（PM 寫入，所有 agent 可讀）
 ├── conversations/   ← 跨角色重要對話紀錄（架構決策、重要會話摘要）
 ├── project/         ← 全域專案狀態（PM 維護）

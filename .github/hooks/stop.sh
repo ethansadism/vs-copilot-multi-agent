@@ -11,7 +11,7 @@ try:
         sys.exit(0)
 
     data = json.loads(input_str)
-    overview_file = ".github/memory-kb/project/project-overview.md"
+    overview_file = "memory-kb/project/project-overview.md"
 
     if os.path.exists(overview_file):
         mtime = os.path.getmtime(overview_file)

@@ -9,6 +9,7 @@ import sys, json, os, datetime, re
 try:
     input_str = sys.stdin.read()
     if not input_str:
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     data = json.loads(input_str)
@@ -43,7 +44,7 @@ try:
 
     if triggered:
         # 讀取現有主題清單
-        topics_dir = ".claude/memory-kb/topics"
+        topics_dir = "memory-kb/topics"
         index_file = os.path.join(topics_dir, "_index.json")
         topic_list = ""
 
@@ -60,8 +61,8 @@ try:
 
 1. 詢問使用者要存入哪個主題（或建立新主題）
 2. 整理當前對話的重點
-3. 用 `write_note` 寫入 `.claude/memory-kb/topics/{{topic-name}}/` 資料夾
-4. 更新 `.claude/memory-kb/topics/_index.json`
+3. 用 `write_note` 寫入 `memory-kb/topics/{{topic-name}}/` 資料夾
+4. 更新 `memory-kb/topics/_index.json`
 
 ### 現有進行中的主題：
 {topic_list if topic_list else "（無，需建立新主題）"}
@@ -77,4 +78,4 @@ try:
 
 except Exception as e:
     print(json.dumps({"continue": True}))
-'
+' || echo '{"continue": true}'

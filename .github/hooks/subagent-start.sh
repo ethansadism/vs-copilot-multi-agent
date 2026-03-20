@@ -13,7 +13,7 @@ try:
     data = json.loads(input_str)
     agent_type = data.get("agent_type", "unknown")
     agent_id = data.get("agent_id", "unknown")
-    memory_kb = ".github/memory-kb"
+    memory_kb = "memory-kb"
     log_dir = ".github/logs"
 
     os.makedirs(log_dir, exist_ok=True)

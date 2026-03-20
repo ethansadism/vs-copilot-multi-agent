@@ -45,6 +45,66 @@ bash setup.sh
 2. SessionStart hook 自動顯示主題記憶選單
 3. 直接對話或選擇 PM agent 開始工作
 
+---
+
+## 使用情境範例（Claude Code）
+
+### 情境一：全新對話，喚醒記憶
+
+SessionStart hook 會自動顯示進行中主題。你不需要做任何事，直接說明需求即可。若要手動載入上次狀態：
+
+```
+你：繼續
+```
+
+Claude 會搜尋 `conversations/` 最新對話筆記 + 載入 active 主題，恢復上次狀態。
+
+### 情境二：換電腦後出現 Session 錯誤
+
+```
+Error: No conversation found with session ID: xxxx-xxxx
+```
+
+這是正常現象。本地 session 快取不存在時會出現。直接說「繼續」讓 Claude 從 Basic Memory 重建記憶，或直接開始新對話。
+
+### 情境三：儲存目前對話為主題記憶
+
+說任何包含以下關鍵字的句子會觸發儲存流程：
+
+| 觸發詞 | 範例 |
+|--------|------|
+| 筆記 | 「把這個架構決策筆記一下」 |
+| 記一下 / 記錄進度 | 「記錄進度，目前完成了登入頁面」 |
+| 存起來 / save / note | 「save，今天討論的內容」 |
+
+Claude 會詢問主題名稱（選擇現有或建立新主題），然後寫入 `topics/{topic-name}/`。
+
+### 情境四：繼續某個主題
+
+```
+你：載入 claude-code-migration 主題
+```
+
+或在 SessionStart 顯示選單時直接輸入主題編號。
+
+### 情境五：讓 PM 協調多 agent 任務
+
+```
+你：用 PM agent，幫我建一個新的爬蟲 Dashboard 監控 Reddit 熱門文章
+```
+
+PM 會自動：1) 查詢記憶庫了解現有架構，2) 建立介面合約，3) 依序呼叫 Crawler / Database / Frontend agent。
+
+### 情境六：封存已完成的主題
+
+```
+你：封存 claude-code-migration
+```
+
+主題狀態改為 `archived`，不再佔用 SessionStart 的 token。未來需要時可用 `read_note` 手動載入。
+
+---
+
 ## 系統架構
 
 ### 四個 Agent 角色
@@ -73,37 +133,29 @@ bash setup.sh
 ├── CLAUDE.md                    # Claude Code 全域規則
 ├── .mcp.json                    # Claude Code MCP 設定
 │
-├── .claude/                     # === Claude Code 版本 ===
+├── memory-kb/                   # === 共用記憶知識庫（兩平台共用）===
+│   ├── contracts/               # 跨 agent 介面合約
+│   ├── conversations/           # 重要對話紀錄
+│   ├── project/                 # 專案狀態（PM 維護）
+│   ├── crawler/                 # 爬蟲經驗
+│   ├── database/                # 資料庫經驗
+│   ├── frontend/                # UI/UX 經驗
+│   └── topics/                  # 主題記憶
+│       └── _index.json          # 主題索引
+│
+├── .claude/                     # === Claude Code 平台 ===
 │   ├── agents/                  # Agent 定義
 │   │   ├── pm.md                # PM（Opus，頂層協調者）
 │   │   ├── crawler.md           # 爬蟲專家（Sonnet）
 │   │   ├── database.md          # 資料庫專家（Sonnet）
 │   │   └── frontend.md          # 前端工程師（Sonnet）
 │   ├── hooks/                   # 8 個 Hook 腳本
-│   │   ├── session-init.sh      # SessionStart：主題選單 + 記憶提示
-│   │   ├── user-prompt-submit.sh # UserPromptSubmit：關鍵字偵測 + 審計
-│   │   ├── subagent-start.sh    # SubagentStart：注入記憶提示
-│   │   ├── subagent-memory-check.sh # Per-agent Stop：記憶更新阻擋
-│   │   ├── post-tool-use.sh     # PostToolUse：工具使用審計
-│   │   ├── pre-compact.sh       # PreCompact：壓縮前保護 + 儲存提醒
-│   │   ├── stop.sh              # Stop：記憶更新提醒
-│   │   └── validate-write-note.sh # PreToolUse：tags 格式驗證（阻擋）
-│   ├── settings.json            # Hook 配置
-│   └── memory-kb/               # 記憶知識庫
-│       ├── contracts/
-│       ├── conversations/
-│       ├── project/
-│       ├── crawler/
-│       ├── database/
-│       ├── frontend/
-│       └── topics/              # 主題記憶
-│           └── _index.json      # 主題索引
+│   └── settings.json            # Hook 配置
 │
-├── .github/                     # === VS Code Copilot 版本 ===
+├── .github/                     # === VS Code Copilot 平台 ===
 │   ├── agents/                  # .agent.md 格式
 │   ├── copilot-instructions.md  # 全域規則
-│   ├── hooks/                   # hooks.json + 腳本
-│   └── memory-kb/               # 記憶知識庫
+│   └── hooks/                   # hooks.json + 腳本
 │
 └── .vscode/
     └── mcp.json                 # VS Code MCP 設定

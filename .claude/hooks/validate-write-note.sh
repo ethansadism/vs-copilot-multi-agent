@@ -12,6 +12,7 @@ import sys, json, os
 try:
     input_str = os.environ.get("HOOK_INPUT", "")
     if not input_str:
+        print(json.dumps({"decision": "approve"}))
         sys.exit(0)
 
     data = json.loads(input_str)
@@ -71,4 +72,4 @@ try:
 
 except Exception as e:
     print(json.dumps({"decision": "approve"}))
-'
+' || echo '{"decision": "approve"}'

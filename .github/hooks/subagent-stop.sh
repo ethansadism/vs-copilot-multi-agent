@@ -15,7 +15,7 @@ try:
     agent_id = data.get("agent_id", "unknown")
     session_id = data.get("sessionId", "unknown")
 
-    memory_kb = ".github/memory-kb"
+    memory_kb = "memory-kb"
     log_dir = ".github/logs"
     reports_dir = ".github/reports"
 
