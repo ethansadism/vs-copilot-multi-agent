@@ -25,7 +25,11 @@
 在你的專案目錄下執行：
 
 ```bash
+# Git Bash / macOS / Linux
 bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
+
+# Windows PowerShell
+curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
 ```
 
 `bootstrap.sh` 會：
@@ -91,9 +95,16 @@ Claude Code 預設為**一般對話模式**，你可以直接與 Claude 對話�
 
 #### Step 1：執行 bootstrap
 
+**Git Bash / macOS / Linux：**
 ```bash
 cd your-project
 bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
+```
+
+**Windows PowerShell（不支援 `<(...)` 語法）：**
+```powershell
+cd your-project
+curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
 ```
 
 Bootstrap 自動產生一筆 kickoff note（`memory-kb/project/{project}_001_bootstrap-summary.md`），讓第一個 agent 就能理解環境。
