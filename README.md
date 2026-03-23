@@ -10,6 +10,7 @@
 
 - Python 3.10+（用於 Hook 腳本）
 - [basic-memory](https://github.com/basicmachines-co/basic-memory) MCP 伺服器
+- **Windows**：[Git for Windows](https://git-scm.com/download/win)（bootstrap 腳本需要 Git Bash）
 
 **VS Code Copilot 版本**另需：
 - [VS Code](https://code.visualstudio.com/) 1.99+
@@ -24,13 +25,12 @@
 
 在你的專案目錄下執行：
 
-```bash
-# Git Bash / macOS / Linux
-bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
+| 環境 | 指令 |
+|------|------|
+| **macOS / Linux** | `bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)` |
+| **Windows** | 在專案資料夾按右鍵 → **Open Git Bash here**，然後執行上面同一行指令 |
 
-# Windows PowerShell
-curl.exe -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
-```
+> **Windows 注意**：bootstrap 是 bash 腳本，需要透過 **Git Bash** 執行（安裝 [Git for Windows](https://git-scm.com/download/win) 即附帶）。PowerShell / CMD 不支援。
 
 `bootstrap.sh` 會：
 - 複製 `agents/`、`hooks/` 到 `.claude/` 和 `.github/`
@@ -95,17 +95,12 @@ Claude Code 預設為**一般對話模式**，你可以直接與 Claude 對話�
 
 #### Step 1：執行 bootstrap
 
-**Git Bash / macOS / Linux：**
 ```bash
 cd your-project
 bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
 ```
 
-**Windows PowerShell（不支援 `<(...)` 語法）：**
-```powershell
-cd your-project
-curl.exe -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
-```
+> **Windows**：在專案資料夾按右鍵 → **Open Git Bash here**，然後執行上面指令。需要 [Git for Windows](https://git-scm.com/download/win)。
 
 Bootstrap 自動產生一筆 kickoff note（`memory-kb/project/{project}_001_bootstrap-summary.md`），讓第一個 agent 就能理解環境。
 
