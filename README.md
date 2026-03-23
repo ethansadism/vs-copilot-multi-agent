@@ -8,7 +8,7 @@
 
 ### 前置需求
 
-- Python 3.10+（用於 Hook 腳本）
+- Python 3.10+（用於 Hook 腳本；Windows 上需確認 `py --version` 可用，不能只有 Microsoft Store stub）
 - [basic-memory](https://github.com/basicmachines-co/basic-memory) MCP 伺服器
 - **Windows**：[Git for Windows](https://git-scm.com/download/win)（bootstrap 腳本需要 Git Bash）
 

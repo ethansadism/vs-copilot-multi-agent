@@ -3,6 +3,17 @@
 # 用法：bash setup.sh
 set -e
 
+# 偵測可用的 Python 指令（Windows 上可能是 py、python 或 python3）
+if [ -z "$PYTHON" ]; then
+    PYTHON=""
+    for cmd in python3 python py; do
+        if "$cmd" --version >/dev/null 2>&1; then
+            PYTHON="$cmd"
+            break
+        fi
+    done
+fi
+
 echo "=== Multi-Agent Collaboration System 安裝 ==="
 echo ""
 
@@ -85,7 +96,7 @@ fi
 echo ""
 if [ ! -d ".venv" ]; then
     echo "🐍 建立 Python venv..."
-    python3 -m venv .venv
+    ${PYTHON:-python3} -m venv .venv
     echo "✅ venv 已建立（啟用：source .venv/bin/activate）"
 else
     echo "✅ .venv 已存在"

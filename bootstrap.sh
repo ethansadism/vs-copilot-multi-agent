@@ -8,6 +8,25 @@ REPO_URL="https://github.com/ethansadism/vs-copilot-multi-agent.git"
 MARKER_START="# >>> multi-agent-system (auto-inserted, do not edit this block) <<<"
 MARKER_END="# <<< multi-agent-system end >>>"
 
+# 偵測可用的 Python 指令（Windows 上可能是 py、python 或 python3）
+PYTHON=""
+for cmd in python3 python py; do
+    if "$cmd" --version >/dev/null 2>&1; then
+        PYTHON="$cmd"
+        break
+    fi
+done
+
+if [ -z "$PYTHON" ]; then
+    echo "❌ 找不到 Python。請先安裝 Python 3.10+。"
+    echo "   Windows: https://www.python.org/downloads/"
+    echo "   macOS:   brew install python3"
+    exit 1
+fi
+
+export PYTHON
+echo "🐍 使用 Python: $PYTHON ($($PYTHON --version 2>&1))"
+
 # 用當前目錄名稱作為 basic-memory 專案名（與 setup.sh 一致）
 PROJECT_NAME="$(basename "$(pwd)")"
 
@@ -41,7 +60,7 @@ if [ ! -f ".claude/settings.json" ]; then
     cp "$SRC/.claude/settings.json" .claude/settings.json
     echo "✅ .claude/settings.json 已建立"
 else
-    python3 - <<PYEOF
+    $PYTHON - <<PYEOF
 import json, sys
 
 with open(".claude/settings.json") as f:
@@ -83,7 +102,7 @@ if [ ! -f "CLAUDE.md" ]; then
     echo "✅ CLAUDE.md 已建立"
 elif grep -qF "$MARKER_START" CLAUDE.md; then
     # 已安裝過：更新區段內容
-    python3 - <<PYEOF
+    $PYTHON - <<PYEOF
 import re
 
 with open("CLAUDE.md") as f:
@@ -147,7 +166,7 @@ if [ ! -f "$COPILOT_DST" ]; then
     cp "$COPILOT_SRC" "$COPILOT_DST"
     echo "✅ copilot-instructions.md 已建立"
 elif grep -qF "$MARKER_START" "$COPILOT_DST"; then
-    python3 - <<PYEOF
+    $PYTHON - <<PYEOF
 import re
 
 with open("$COPILOT_DST") as f:
@@ -197,7 +216,7 @@ if [ ! -f ".vscode/mcp.json" ]; then
     cp "$SRC/.vscode/mcp.json" .vscode/mcp.json
     echo "✅ .vscode/mcp.json 已建立"
 else
-    python3 - <<PYEOF
+    $PYTHON - <<PYEOF
 import json
 
 with open(".vscode/mcp.json") as f:
@@ -218,7 +237,7 @@ print("✅ .vscode/mcp.json 已合併（保留現有 servers）")
 PYEOF
 fi
 # 替換 basic-memory project name（來源是 multi-agent-system，要換成目前專案名）
-python3 - <<PYEOF
+$PYTHON - <<PYEOF
 import json, os
 
 project_name = os.path.basename(os.getcwd())
@@ -247,7 +266,7 @@ if [ ! -f ".mcp.json" ]; then
     cp "$SRC/.mcp.json" .mcp.json
     echo "✅ .mcp.json 已建立"
 else
-    python3 - <<PYEOF
+    $PYTHON - <<PYEOF
 import json
 
 with open(".mcp.json") as f:
@@ -266,7 +285,7 @@ print("✅ .mcp.json 已合併")
 PYEOF
 fi
 # 替換 basic-memory project name
-python3 - <<PYEOF
+$PYTHON - <<PYEOF
 import json, os
 
 project_name = os.path.basename(os.getcwd())
