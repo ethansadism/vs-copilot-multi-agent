@@ -44,6 +44,15 @@ echo ""
 
 SRC="$TMPDIR/framework"
 
+# Windows Python (py) 不認識 MINGW 的 /tmp 路徑，需要轉成 Windows 格式
+if command -v cygpath >/dev/null 2>&1; then
+    SRC_PY="$(cygpath -w "$SRC")"
+    CWD_PY="$(cygpath -w "$(pwd)")"
+else
+    SRC_PY="$SRC"
+    CWD_PY="$(pwd)"
+fi
+
 # ── 1. .claude/agents/ 和 .claude/hooks/ ─────────────────────────────
 # 這兩個目錄是框架核心，直接複製（覆蓋）
 echo "🔧 複製 agents 和 hooks..."
@@ -61,12 +70,13 @@ if [ ! -f ".claude/settings.json" ]; then
     echo "✅ .claude/settings.json 已建立"
 else
     $PYTHON - <<PYEOF
-import json, sys
+import json, sys, os
+os.chdir(r"$CWD_PY")
 
 with open(".claude/settings.json") as f:
     existing = json.load(f)
 
-with open("$SRC/.claude/settings.json") as f:
+with open(os.path.join(r"$SRC_PY", ".claude", "settings.json")) as f:
     framework = json.load(f)
 
 # 合併 hooks：保留現有 hooks，加入框架新增的
@@ -103,12 +113,13 @@ if [ ! -f "CLAUDE.md" ]; then
 elif grep -qF "$MARKER_START" CLAUDE.md; then
     # 已安裝過：更新區段內容
     $PYTHON - <<PYEOF
-import re
+import re, os
+os.chdir(r"$CWD_PY")
 
 with open("CLAUDE.md") as f:
     content = f.read()
 
-with open("$SRC/CLAUDE.md") as f:
+with open(os.path.join(r"$SRC_PY", "CLAUDE.md")) as f:
     new_rules = f.read().strip()
 
 marker_start = "$MARKER_START"
@@ -167,11 +178,12 @@ if [ ! -f "$COPILOT_DST" ]; then
     echo "✅ copilot-instructions.md 已建立"
 elif grep -qF "$MARKER_START" "$COPILOT_DST"; then
     $PYTHON - <<PYEOF
-import re
+import re, os
+os.chdir(r"$CWD_PY")
 
 with open("$COPILOT_DST") as f:
     content = f.read()
-with open("$COPILOT_SRC") as f:
+with open(os.path.join(r"$SRC_PY", ".github", "copilot-instructions.md")) as f:
     new_rules = f.read().strip()
 
 marker_start = "$MARKER_START"
@@ -217,11 +229,12 @@ if [ ! -f ".vscode/mcp.json" ]; then
     echo "✅ .vscode/mcp.json 已建立"
 else
     $PYTHON - <<PYEOF
-import json
+import json, os
+os.chdir(r"$CWD_PY")
 
 with open(".vscode/mcp.json") as f:
     existing = json.load(f)
-with open("$SRC/.vscode/mcp.json") as f:
+with open(os.path.join(r"$SRC_PY", ".vscode", "mcp.json")) as f:
     framework = json.load(f)
 
 existing_servers = existing.get("servers", {})
@@ -239,6 +252,7 @@ fi
 # 替換 basic-memory project name（來源是 multi-agent-system，要換成目前專案名）
 $PYTHON - <<PYEOF
 import json, os
+os.chdir(r"$CWD_PY")
 
 project_name = os.path.basename(os.getcwd())
 for path in [".vscode/mcp.json"]:
@@ -267,11 +281,12 @@ if [ ! -f ".mcp.json" ]; then
     echo "✅ .mcp.json 已建立"
 else
     $PYTHON - <<PYEOF
-import json
+import json, os
+os.chdir(r"$CWD_PY")
 
 with open(".mcp.json") as f:
     existing = json.load(f)
-with open("$SRC/.mcp.json") as f:
+with open(os.path.join(r"$SRC_PY", ".mcp.json")) as f:
     framework = json.load(f)
 
 for key in ["mcpServers", "servers"]:
@@ -287,6 +302,7 @@ fi
 # 替換 basic-memory project name
 $PYTHON - <<PYEOF
 import json, os
+os.chdir(r"$CWD_PY")
 
 project_name = os.path.basename(os.getcwd())
 for path in [".mcp.json"]:
