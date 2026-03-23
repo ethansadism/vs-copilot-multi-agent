@@ -145,6 +145,19 @@ search_notes("關鍵字", tags=["app:mta_demo3"])
 search_notes("關鍵字", tags=["agent:crawler"])
 ```
 
+## 時間紀錄格式（全域規則）
+
+所有筆記中的時間欄位**必須精確到 `HH:MM`**，使用 24 小時制。
+
+| 位置 | 格式 | 範例 |
+|------|------|------|
+| Observations 的日期欄位 | `YYYY-MM-DD HH:MM` | `date :: 2026-03-23 14:30` |
+| `_index.json` 的 `created_at` / `updated_at` | `YYYY-MM-DD HH:MM` | `"created_at": "2026-03-23 14:30"` |
+| 對話紀錄檔名 | `YYYY-MM-DD`（檔名不含時間） | `2026-03-23_01_topic-name` |
+| Hook 自動產生的 log | ISO 8601（已有秒級精度，不需改） | `2026-03-23T14:30:45` |
+
+> **為什麼**：只有日期無法區分同一天多次操作的先後順序，導致跨電腦、跨 session 回溯時產生混亂。
+
 ## Observations 必填欄位
 
 每筆筆記的 Observations 必須包含：

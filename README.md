@@ -1,4 +1,4 @@
-# Multi-Agent Collaboration System (v0.08)
+# Multi-Agent Collaboration System (v0.10)
 
 基於 **VS Code Copilot** 和 **Claude Code** 的多 Agent 協作系統。PM 協調、專家執行、Basic Memory 知識圖譜持久化。
 
@@ -62,7 +62,7 @@ bash setup.sh
 
 ---
 
-## 使用情境範例（Claude Code）
+## 使用情境
 
 ### 雙模式概念
 
@@ -73,57 +73,94 @@ Claude Code 預設為**一般對話模式**，你可以直接與 Claude 對話�
 | **一般對話**（預設） | 直接對話 | 寫程式、Debug、問問題、一般開發 |
 | **PM 多 Agent** | 「啟動 PM」「PM 模式」「用 PM」等 | 多領域協作（爬蟲+DB+前端） |
 
-### 情境一：全新對話，詢問進度
+### 日常操作
 
-SessionStart hook 會自動顯示進行中主題。詢問專案狀態或想恢復上次對話時：
+| 情境 | 你說 | 系統行為 |
+|------|------|---------|
+| **恢復上次進度** | 「繼續」「上次做到哪」 | 搜尋 `conversations/` 最新筆記 + 載入 active 主題 |
+| **儲存對話為主題** | 「筆記」「記一下」「save」 | 詢問主題名稱 → 寫入 `topics/{topic-name}/` |
+| **繼續某個主題** | 「載入 xxx 主題」或選單選號碼 | 讀取該主題所有筆記，恢復上下文 |
+| **PM 多 agent 協作** | 「啟動 PM，建一個 Dashboard」 | PM 查記憶 → 建合約 → 派 Crawler/DB/Frontend |
+| **封存完成的主題** | 「封存 xxx」 | 狀態改 `archived`，不再自動載入 |
+
+> **注意**：一般模式從 `conversations/`（對話紀錄）恢復進度，不是 `project/`（PM 架構筆記）。這是刻意設計——一般模式關心「上次聊到哪」，PM 模式才用專案總覽。
+
+### 在現有專案導入此系統
+
+執行 `bootstrap.sh` 後，你的專案就有了完整的多 agent + 記憶系統。但**空的記憶庫不等於有用的記憶庫**——你需要把現有知識遷移進來。
+
+#### Step 1：執行 bootstrap
+
+```bash
+cd your-project
+bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
+```
+
+Bootstrap 自動產生一筆 kickoff note（`memory-kb/project/{project}_001_bootstrap-summary.md`），讓第一個 agent 就能理解環境。
+
+#### Step 2：遷移現有知識到記憶庫
+
+你可能已經有散落在各處的專案知識——其他 AI 的對話紀錄、個人筆記、markdown 文件、設計文件等。以下是將它們整理進系統的方式：
+
+| 來源 | 遷移方式 | 存放位置 |
+|------|---------|---------|
+| **其他 AI 對話紀錄**（ChatGPT / Copilot / Gemini） | 匯出對話 → 貼給 Claude，說「把這段整理成筆記」 | `memory-kb/` 對應資料夾 |
+| **現有 .md 筆記** | 直接放入 `memory-kb/` 對應資料夾，補上 frontmatter（title / tags） | 依內容分類 |
+| **腦中的架構知識** | 口述給 Claude，說「筆記一下」觸發儲存流程 | `topics/` 或對應資料夾 |
+| **設計文件 / PRD** | 貼給 Claude，請 PM 模式讀取並建立專案筆記 | `project/` |
+| **已有的 CLAUDE.md 規則** | bootstrap 會自動附加（不覆蓋），兩套規則共存 | `CLAUDE.md` |
+
+**遷移 .md 檔案的 frontmatter 範例：**
+
+```markdown
+---
+title: myapp_001_api-design-notes
+type: note
+tags:
+- app:myapp
+- agent:claude
+- type:reference
+---
+
+# API 設計筆記
+
+（你的原有筆記內容...）
+
+## Observations
+
+- app :: myapp
+- agent :: claude
+```
+
+> **提示**：不需要一次全部遷移。推薦的節奏是——bootstrap 後先正常開發，遇到需要上下文的情境時，再把相關知識整理進記憶庫。讓記憶隨著實際需求自然成長。
+
+#### Step 3：用 reindex 建立語意索引
+
+```bash
+basic-memory reindex --project your-project
+```
+
+放入 `memory-kb/` 的 .md 檔案需要 reindex 才會被 `search_notes` 搜到。bootstrap 結尾的 `setup.sh` 會自動執行一次，但手動新增檔案後需要再跑一次。
+
+#### Step 4：驗證
 
 ```
-你：進度到哪了？
 你：繼續
-你：上次做到哪？
 ```
 
-Claude 會搜尋 `conversations/` 最新對話筆記 + 載入 active 主題，恢復上次狀態。
+如果一切正常，Claude 會讀到 kickoff note 和你遷移的筆記，並展示目前的專案狀態。
 
-> **注意**：Claude 會從 `conversations/`（對話紀錄）而非 `project/`（PM 架構筆記）讀取進度。這是刻意設計——一般對話模式關心的是「上次我們聊到哪」，不是「PM 的專案總覽」。
+### 新環境 / 換電腦
 
+| 步驟 | 說明 |
+|------|------|
+| 1. `git pull` | 記憶庫（`memory-kb/`）跟著 repo 同步 |
+| 2. 確認 basic-memory 已安裝 | `pip install basic-memory` 或用 `setup.sh` |
+| 3. `basic-memory reindex` | 重建語意索引（本機儲存，不進 git） |
+| 4. 啟動 `claude` | SessionStart hook 自動顯示主題選單 |
+| 5. 說「繼續」 | 從 `conversations/` 恢復上次進度 |
 
-### 情境二：儲存目前對話為主題記憶
-
-說任何包含以下關鍵字的句子會觸發儲存流程：
-
-| 觸發詞 | 範例 |
-|--------|------|
-| 筆記 | 「把這個架構決策筆記一下」 |
-| 記一下 / 記錄進度 | 「記錄進度，目前完成了登入頁面」 |
-| 存起來 / save / note | 「save，今天討論的內容」 |
-
-Claude 會詢問主題名稱（選擇現有或建立新主題），然後寫入 `topics/{topic-name}/`。
-
-### 情境三：繼續某個主題
-
-```
-你：載入 claude-code-migration 主題
-```
-
-或在 SessionStart 顯示選單時直接輸入主題編號。
-
-### 情境四：讓 PM 協調多 agent 任務
-
-```
-你：啟動 PM，幫我建一個新的爬蟲 Dashboard 監控 Reddit 熱門文章
-你：PM 模式，新增美股即時監聽功能
-```
-
-PM 會自動：1) 查詢記憶庫了解現有架構，2) 建立介面合約，3) 依序呼叫 Crawler / Database / Frontend agent。
-
-### 情境五：封存已完成的主題
-
-```
-你：封存 claude-code-migration
-```
-
-主題狀態改為 `archived`，不再佔用 SessionStart 的 token。未來需要時可用 `read_note` 手動載入。
+> **注意**：Claude Code 的對話記錄（chat history）是**本機儲存**的，不跨電腦。跨裝置的知識延續完全靠 `memory-kb/` + git。
 
 ---
 
@@ -240,5 +277,5 @@ PM 會自動：1) 查詢記憶庫了解現有架構，2) 建立介面合約，3)
 
 ---
 
-**版本**: 0.08
-**上次更新**: 2026-03-20
+**版本**: 0.10
+**上次更新**: 2026-03-23

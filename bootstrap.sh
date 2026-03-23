@@ -301,7 +301,7 @@ echo "✅ memory-kb/ 結構已建立（內容不進 git）"
 # ── 9. 寫入 kickoff note（讓第一個 agent 知道這裡發生了什麼）─────────────
 echo ""
 echo "📝 寫入 bootstrap kickoff note..."
-BOOTSTRAP_DATE=$(date +%Y-%m-%d)
+BOOTSTRAP_DATE=$(date "+%Y-%m-%d %H:%M")
 cat > "memory-kb/project/${PROJECT_NAME}_001_bootstrap-summary.md" <<NOTE
 ---
 title: ${PROJECT_NAME}_001_bootstrap-summary
