@@ -29,7 +29,7 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh)
 
 # Windows PowerShell
-curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
+curl.exe -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
 ```
 
 `bootstrap.sh` 會：
@@ -104,7 +104,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi
 **Windows PowerShell（不支援 `<(...)` 語法）：**
 ```powershell
 cd your-project
-curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
+curl.exe -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/bootstrap.sh -o $env:TEMP\bootstrap.sh; bash $env:TEMP\bootstrap.sh
 ```
 
 Bootstrap 自動產生一筆 kickoff note（`memory-kb/project/{project}_001_bootstrap-summary.md`），讓第一個 agent 就能理解環境。
