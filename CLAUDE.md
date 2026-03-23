@@ -40,6 +40,28 @@ SessionStart hook 會自動顯示進行中的主題記憶選單和模式提示�
 
 如果使用者選擇了某個主題，用 `read_note` 載入該主題的筆記。
 
+## 遷移引導模式（MAS Migration）
+
+當使用者說「使用MAS開始整理」「初始化現有環境」「遷移記憶」等語意時，啟動遷移引導：
+
+1. 讀取 `memory-kb/project/{project}_002_migration-scan.md`（由 `migrate-scan.sh` 產生的掃描報告）
+2. 若報告不存在，引導使用者先執行 `bash migrate-scan.sh`
+3. 逐一列出報告中的每個知識來源，對每個項目：
+   - **顯示**：路徑、分類、大小
+   - **預覽**：讀取前 30 行讓使用者快速判斷內容
+   - **提問**：提供選項讓使用者選擇處理方式：
+     - `[1] 匯入` — 整理成 basic-memory 格式，寫入 `memory-kb/` 對應資料夾
+     - `[2] 整合進 CLAUDE.md` — 提取規則/慣例，附加到 CLAUDE.md
+     - `[3] 跳過` — 不處理
+     - `[4] 預覽更多` — 顯示完整內容再決定
+4. 匯入時自動：
+   - 補上 frontmatter（title / tags）
+   - 遵循筆記命名規則（`{app-id}_{seq}_{name}`）
+   - 加上 Observations 必填欄位
+5. 全部處理完後，執行 `basic-memory reindex` 建立語意索引
+
+> 這是一次性的初始化流程，讓已有知識能快速進入記憶系統。
+
 ## 記憶系統資料夾結構
 
 ```

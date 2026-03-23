@@ -346,7 +346,11 @@ tags:
 NOTE
 echo "✅ kickoff note 已寫入 memory-kb/project/"
 
-# ── 10. 執行 setup.sh（basic-memory 安裝與註冊）───────────────────────
+# ── 10. 掃描現有知識來源 ──────────────────────────────────────────────
+echo ""
+bash "$SRC/migrate-scan.sh"
+
+# ── 11. 執行 setup.sh（basic-memory 安裝與註冊）───────────────────────
 echo ""
 echo "🚀 執行 setup.sh 安裝 basic-memory..."
 bash "$SRC/setup.sh"
@@ -367,3 +371,8 @@ echo ""
 echo "下一步："
 echo "  【Claude Code】在此目錄執行 claude，開始對話"
 echo "  【VS Code】開啟 Copilot Chat，Agent 選單選擇 'Project Manager'"
+echo ""
+SCAN_REPORT="memory-kb/project/${PROJECT_NAME}_002_migration-scan.md"
+if [ -f "$SCAN_REPORT" ]; then
+    echo "  📋 偵測到現有知識來源，輸入「使用MAS開始整理並初始化現有環境」啟動遷移引導"
+fi

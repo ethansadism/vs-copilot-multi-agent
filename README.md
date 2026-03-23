@@ -104,49 +104,48 @@ bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi
 
 Bootstrap 自動產生一筆 kickoff note（`memory-kb/project/{project}_001_bootstrap-summary.md`），讓第一個 agent 就能理解環境。
 
-#### Step 2：遷移現有知識到記憶庫
+#### Step 2：自動遷移現有知識
 
-你可能已經有散落在各處的專案知識——其他 AI 的對話紀錄、個人筆記、markdown 文件、設計文件等。以下是將它們整理進系統的方式：
+Bootstrap 結尾會自動執行 `migrate-scan.sh`，掃描專案中的潛在知識來源：
 
-| 來源 | 遷移方式 | 存放位置 |
-|------|---------|---------|
-| **其他 AI 對話紀錄**（ChatGPT / Copilot / Gemini） | 匯出對話 → 貼給 Claude，說「把這段整理成筆記」 | `memory-kb/` 對應資料夾 |
-| **現有 .md 筆記** | 直接放入 `memory-kb/` 對應資料夾，補上 frontmatter（title / tags） | 依內容分類 |
-| **腦中的架構知識** | 口述給 Claude，說「筆記一下」觸發儲存流程 | `topics/` 或對應資料夾 |
-| **設計文件 / PRD** | 貼給 Claude，請 PM 模式讀取並建立專案筆記 | `project/` |
-| **已有的 CLAUDE.md 規則** | bootstrap 會自動附加（不覆蓋），兩套規則共存 | `CLAUDE.md` |
+| 掃描對象 | 範例 |
+|---------|------|
+| **其他 AI 規則檔** | `.cursorrules`、`.windsurfrules`、`AGENTS.md`、`.aider.conf.yml` |
+| **專案文件** | `ARCHITECTURE.md`、`CONVENTIONS.md`、`TODO.md`、`DESIGN.md` |
+| **文件目錄** | `docs/`、`wiki/`、`notes/`、`adr/` |
+| **散落的 Markdown** | 非標準位置的 `.md` 檔案 |
+| **既有記憶系統** | `.memory/`、`knowledge/` |
 
-**遷移 .md 檔案的 frontmatter 範例：**
+掃描結果寫入 `memory-kb/project/{project}_002_migration-scan.md`。
 
-```markdown
----
-title: myapp_001_api-design-notes
-type: note
-tags:
-- app:myapp
-- agent:claude
-- type:reference
----
+#### Step 3：互動式遷移引導
 
-# API 設計筆記
+啟動 Claude Code，輸入：
 
-（你的原有筆記內容...）
-
-## Observations
-
-- app :: myapp
-- agent :: claude
+```
+使用MAS開始整理並初始化現有環境
 ```
 
-> **提示**：不需要一次全部遷移。推薦的節奏是——bootstrap 後先正常開發，遇到需要上下文的情境時，再把相關知識整理進記憶庫。讓記憶隨著實際需求自然成長。
+Claude 會讀取掃描報告，**逐一詢問每個知識來源的處理方式**：
 
-#### Step 3：用 reindex 建立語意索引
+```
+📄 發現：.cursorrules（Cursor AI 規則，42 行）
 
-```bash
-basic-memory reindex --project your-project
+前 30 行預覽：
+  - 使用 TypeScript strict mode
+  - 所有 API 回傳統一 { data, error } 格式
+  ...
+
+如何處理？
+  [1] 匯入 memory-kb（整理成 basic-memory 格式）
+  [2] 整合進 CLAUDE.md（提取規則/慣例）
+  [3] 跳過
+  [4] 預覽更多
 ```
 
-放入 `memory-kb/` 的 .md 檔案需要 reindex 才會被 `search_notes` 搜到。bootstrap 結尾的 `setup.sh` 會自動執行一次，但手動新增檔案後需要再跑一次。
+全部處理完後自動執行 `basic-memory reindex` 建立語意索引。
+
+> **也可以手動遷移**：直接把 `.md` 檔案放入 `memory-kb/` 對應資料夾，補上 frontmatter 即可。但互動式引導能自動處理格式轉換和分類。
 
 #### Step 4：驗證
 
@@ -154,7 +153,9 @@ basic-memory reindex --project your-project
 你：繼續
 ```
 
-如果一切正常，Claude 會讀到 kickoff note 和你遷移的筆記，並展示目前的專案狀態。
+Claude 會讀到 kickoff note 和遷移的筆記，展示專案狀態。
+
+> **不急也沒關係**：不需要一次全部遷移。先正常開發，遇到需要上下文時再把相關知識整理進來。記憶隨實際需求自然成長。
 
 ### 新環境 / 換電腦
 
