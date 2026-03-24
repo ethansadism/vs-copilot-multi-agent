@@ -2,7 +2,8 @@
 # PostToolUse Hook - 記錄工具使用（審計日誌）
 # Claude Code hook event: PostToolUse
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 try:

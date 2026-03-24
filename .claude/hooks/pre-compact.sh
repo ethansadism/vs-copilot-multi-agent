@@ -2,7 +2,8 @@
 # PreCompact Hook - 壓縮前保護關鍵狀態 + 主題記憶提醒
 # Claude Code hook event: PreCompact
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 try:

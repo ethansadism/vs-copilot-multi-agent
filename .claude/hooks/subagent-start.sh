@@ -2,7 +2,8 @@
 # SubagentStart Hook - 注入 Basic Memory 記憶提示給 Subagent
 # Claude Code hook event: SubagentStart
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 try:

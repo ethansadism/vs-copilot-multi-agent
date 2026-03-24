@@ -3,7 +3,8 @@
 # Claude Code hook event: UserPromptSubmit
 # 偵測「筆記」「記錄進度」等關鍵字，注入儲存提示
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime, re
 
 try:

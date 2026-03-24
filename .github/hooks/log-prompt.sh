@@ -2,7 +2,8 @@
 # UserPromptSubmit Hook - Log user prompts
 # Used for audit and session recovery
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 try:

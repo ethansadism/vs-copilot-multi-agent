@@ -2,7 +2,8 @@
 # SessionStart Hook - Initialize session and load Basic Memory
 # This script runs at the start of an Agent session
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os
 
 try:

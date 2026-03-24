@@ -6,7 +6,8 @@
 HOOK_INPUT=$(cat)
 export HOOK_INPUT
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os
 
 try:

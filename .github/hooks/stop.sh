@@ -2,7 +2,8 @@
 # Stop Hook - 會話結束前檢查記憶是否已更新
 # 如果 memory-kb 中的筆記在本次會話中未被修改，注入提醒
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, time
 
 try:

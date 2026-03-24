@@ -2,7 +2,8 @@
 # Stop Hook - 會話結束前檢查記憶是否已更新
 # Claude Code hook event: Stop
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, time
 
 try:

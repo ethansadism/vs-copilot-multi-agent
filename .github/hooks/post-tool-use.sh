@@ -2,7 +2,8 @@
 # PostToolUse Hook - Log tool usage after execution
 # Used for audit and memory updates
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 try:

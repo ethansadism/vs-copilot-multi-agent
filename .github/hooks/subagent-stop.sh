@@ -2,7 +2,8 @@
 # SubagentStop Hook - 記錄 Subagent 完成 + 偵測記憶是否更新
 # v0.02: 新增記憶更新偵測機制
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 try:

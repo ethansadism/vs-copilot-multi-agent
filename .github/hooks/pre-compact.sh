@@ -2,7 +2,8 @@
 # PreCompact Hook - 在 context 被壓縮前保護關鍵狀態
 # v0.02: 改用 Basic Memory (memory-kb)，不再讀 JSON
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os
 
 try:

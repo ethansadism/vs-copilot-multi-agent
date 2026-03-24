@@ -2,7 +2,8 @@
 # SessionStart Hook - 初始化 session，顯示主題記憶選單
 # Claude Code hook event: SessionStart
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os
 
 try:

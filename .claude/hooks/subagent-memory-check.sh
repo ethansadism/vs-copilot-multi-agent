@@ -8,7 +8,8 @@ AGENT_FOLDER="${1:-unknown}"
 HOOK_INPUT=$(cat)
 export HOOK_INPUT AGENT_FOLDER
 
-python3 -c '
+source "$(dirname "$0")/detect-python.sh"
+$PYTHON -c '
 import sys, json, os, datetime
 
 agent_folder = os.environ.get("AGENT_FOLDER", "unknown")
