@@ -40,6 +40,14 @@
 
 > 現有專案的規則和設定不會被覆蓋。
 
+**更新已安裝的系統**
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/ethansadism/vs-copilot-multi-agent/main/update.sh)
+```
+
+只更新 hooks、agents、規則區塊。不動 `memory-kb/`、MCP 設定、使用者自訂內容。
+
 **方式二：全新專案**
 
 ```bash
