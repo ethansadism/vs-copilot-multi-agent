@@ -189,7 +189,7 @@ Claude 會讀到 kickoff note 和遷移的筆記，展示專案狀態。
 - **介面契約傳遞** — PM 在 `contracts/` 建立合約筆記，確保跨 agent 介面一致
 - **記憶自動提示** — SessionStart Hook 提醒 agent 用 `search_notes` 查詢記憶
 - **記憶更新強制** — Subagent Stop Hook 檢查記憶是否更新，未更新則阻擋
-- **長對話保護** — PreCompact Hook 在 context 壓縮前重新注入關鍵資訊
+- **長對話保護** — PreCompact Hook 在壓縮前自動記錄 session 活動到 `conversations/`，並重新注入專案摘要
 - **主題記憶** — 對話可依主題分類儲存，封存後不自動載入（節省 token）
 
 ## 雙平台結構
@@ -238,7 +238,7 @@ Claude 會讀到 kickoff note 和遷移的筆記，展示專案狀態。
 | **SubagentStart** | subagent-start.sh | 注入 folder 路徑 + 筆記列表 + 時間戳 |
 | **Per-agent Stop** | subagent-memory-check.sh | **exit 2 阻擋**未寫記憶的 subagent |
 | **PostToolUse** | post-tool-use.sh | 工具使用審計日誌 |
-| **PreCompact** | pre-compact.sh | 專案摘要 + 主題記憶儲存提醒 |
+| **PreCompact** | pre-compact.sh | 自動記錄 session 活動到 `conversations/` + 專案摘要注入 |
 | **Stop** | stop.sh | 記憶更新提醒 |
 | **PreToolUse** | validate-write-note.sh | 驗證 write_note tags（exit 2 阻擋） |
 
